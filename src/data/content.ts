@@ -1,4 +1,7 @@
 import type { FolderId, FolderMeta, Project } from '../types';
+import { AIRPORT_CYBERCULTURE_CONTENT } from './projects/airport-cyberculture';
+import { ORANGE_BUSINESS_CONTENT } from './projects/orange-business';
+import { DELOITTE_CONTENT } from './projects/deloitte';
 
 export const MENU_ITEMS = [
   'PALLAVI OS',
@@ -40,7 +43,7 @@ export const FOLDERS: FolderMeta[] = [
   },
   {
     id: 'experiments',
-    label: 'EXPERIMENTS',
+    label: 'AI EXPERIMENTS',
     icon: 'folder',
     description: 'Systems · prototypes · speculative UI',
   },
@@ -49,6 +52,36 @@ export const FOLDERS: FolderMeta[] = [
     label: 'PLAYGROUND',
     icon: 'folder',
     description: 'Motion · AI · generative visuals',
+  },
+  {
+    id: 'emerging-media',
+    label: 'INTERACTIVE & EMERGING',
+    icon: 'gesture',
+    description: 'Gesture · spatial · immersive tech',
+  },
+  {
+    id: 'digital-interfaces',
+    label: 'UX & DIGITAL',
+    icon: 'interface',
+    description: 'Interfaces · systems · interaction design',
+  },
+  {
+    id: 'branding-strategy',
+    label: 'BRANDING & STRATEGY',
+    icon: 'palette',
+    description: 'Visual identity · brand systems · strategy',
+  },
+  {
+    id: 'information-graphics',
+    label: 'INFORMATION GRAPHICS',
+    icon: 'chart',
+    description: 'Data visualization · narratives · infographics',
+  },
+  {
+    id: 'spatial-design',
+    label: 'INDUSTRIAL & SPATIAL',
+    icon: 'cube',
+    description: 'Physical design · environments · objects',
   },
   {
     id: 'about',
@@ -82,6 +115,7 @@ export const PROJECTS: Project[] = [
     ],
     image:
       'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
+    sections: ORANGE_BUSINESS_CONTENT,
   },
   {
     id: 'deloitte',
@@ -100,6 +134,7 @@ export const PROJECTS: Project[] = [
     ],
     image:
       'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
+    sections: DELOITTE_CONTENT,
   },
   {
     id: 'room-booking',
@@ -149,9 +184,9 @@ export const PROJECTS: Project[] = [
   {
     id: 'airport-cyberculture',
     folderId: 'interactive-media',
-    title: 'AIRPORT CYBERCULTURE',
+    title: 'CYBERCULTURE IN AIRPORTS',
     subtitle: 'Immersive terminal installation',
-    year: '2024',
+    year: '2023',
     tags: ['INSTALLATION', 'TOUCHDESIGNER', 'CYBER'],
     summary:
       'Large-scale ambient media for transit space — glitch aesthetics, passenger flow reactivity, and sonic layers tied to movement data.',
@@ -160,6 +195,7 @@ export const PROJECTS: Project[] = [
     outcomes: ['Site-specific narrative across 3 zones'],
     image:
       'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80',
+    sections: AIRPORT_CYBERCULTURE_CONTENT,
   },
   {
     id: 'renewable-energy',
@@ -253,7 +289,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'speculative-ui',
-    folderId: 'experiments',
+    folderId: 'playground',
     title: 'SPECULATIVE UI',
     subtitle: 'Future workstation concepts',
     year: '2024',
@@ -268,7 +304,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'signal-garden',
-    folderId: 'experiments',
+    folderId: 'playground',
     title: 'SIGNAL GARDEN',
     subtitle: 'Network visualization lab',
     year: '2023',
@@ -340,6 +376,231 @@ export const PROJECTS: Project[] = [
     outcomes: ['Visual toolkit for live sets'],
     image:
       'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=800&q=80',
+  },
+  {
+    id: 'gestural-navigation',
+    folderId: 'emerging-media',
+    title: 'GESTURAL NAVIGATION',
+    subtitle: 'Hand-tracking spatial interface',
+    year: '2024',
+    tags: ['GESTURE', 'SPATIAL', 'INTERACTION'],
+    summary:
+      'Three-dimensional gesture recognition systems for immersive environments — volumetric menus, haptic feedback, embodied navigation.',
+    role: 'Interaction designer',
+    tools: ['Leap Motion', 'Unity', 'Custom tracking'],
+    outcomes: ['Patent-pending gesture vocabulary'],
+    image:
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9a83?w=800&q=80',
+  },
+  {
+    id: 'holographic-display',
+    folderId: 'emerging-media',
+    title: 'HOLOGRAPHIC DISPLAY',
+    subtitle: 'AR data visualization layer',
+    year: '2024',
+    tags: ['AR', 'SPATIAL', 'DISPLAY'],
+    summary:
+      'Spatial computing interface for real-time data overlay — volumetric typography, gesture-based interaction, multi-user collaboration.',
+    role: 'Experience designer',
+    tools: ['ARKit', 'RealityKit', 'Swift'],
+    outcomes: ['Live product demo at tech expo'],
+    image:
+      'https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=800&q=80',
+  },
+  {
+    id: 'immersive-installation',
+    folderId: 'emerging-media',
+    title: 'IMMERSIVE INSTALLATION',
+    subtitle: 'Sensor-responsive environment',
+    year: '2023',
+    tags: ['INSTALLATION', 'SENSORS', 'RESPONSIVE'],
+    summary:
+      'Full-body tracking installation responding to movement patterns — generative audio, projection mapping, real-time feedback loops.',
+    role: 'Creative technologist',
+    tools: ['Kinect', 'Max/MSP', 'Projection mapping'],
+    outcomes: ['Exhibited internationally'],
+    image:
+      'https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=800&q=80',
+  },
+  {
+    id: 'accessible-dashboard',
+    folderId: 'digital-interfaces',
+    title: 'ACCESSIBLE DASHBOARD',
+    subtitle: 'Enterprise analytics platform',
+    year: '2024',
+    tags: ['DASHBOARD', 'ACCESSIBILITY', 'DATA'],
+    summary:
+      'Data-dense analytics interface with WCAG AAA compliance — keyboard navigation, screen reader optimization, high-contrast modes.',
+    role: 'UX/Accessibility designer',
+    tools: ['Figma', 'Testing tools', 'WCAG'],
+    outcomes: ['100% accessibility compliance'],
+    image:
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
+  },
+  {
+    id: 'mobile-app-redesign',
+    folderId: 'digital-interfaces',
+    title: 'MOBILE APP REDESIGN',
+    subtitle: 'Cross-platform product UX',
+    year: '2024',
+    tags: ['MOBILE', 'PRODUCT', 'REDESIGN'],
+    summary:
+      'Comprehensive mobile-first redesign — gesture patterns, touch targets, offline-first architecture, performance optimization.',
+    role: 'Senior UX designer',
+    tools: ['Figma', 'Prototyping', 'User research'],
+    outcomes: ['40% increase in user engagement'],
+    image:
+      'https://images.unsplash.com/photo-1512941691920-25bda36fda36?w=800&q=80',
+  },
+  {
+    id: 'design-system',
+    folderId: 'digital-interfaces',
+    title: 'DESIGN SYSTEM',
+    subtitle: 'Component library & tokens',
+    year: '2023',
+    tags: ['SYSTEM', 'COMPONENTS', 'TOKENS'],
+    summary:
+      'Unified component architecture for 12+ product teams — 200+ components, comprehensive documentation, version management.',
+    role: 'Design systems lead',
+    tools: ['Figma', 'Storybook', 'Token studio'],
+    outcomes: ['50% faster design-to-dev handoff'],
+    image:
+      'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&q=80',
+  },
+  {
+    id: 'brand-identity',
+    folderId: 'branding-strategy',
+    title: 'BRAND IDENTITY',
+    subtitle: 'Visual language & guidelines',
+    year: '2024',
+    tags: ['BRANDING', 'IDENTITY', 'STRATEGY'],
+    summary:
+      'Comprehensive brand system — logo variations, typography hierarchy, color palette, motion principles, asset library.',
+    role: 'Brand designer',
+    tools: ['Illustrator', 'Figma', 'Brand guidelines'],
+    outcomes: ['Multi-award winning design'],
+    image:
+      'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&q=80',
+  },
+  {
+    id: 'marketing-campaign',
+    folderId: 'branding-strategy',
+    title: 'MARKETING CAMPAIGN',
+    subtitle: 'Integrated brand activation',
+    year: '2023',
+    tags: ['CAMPAIGN', 'MARKETING', 'ACTIVATION'],
+    summary:
+      'Cross-channel marketing campaign — brand messaging, visual assets, social strategy, motion design, print collateral.',
+    role: 'Creative director',
+    tools: ['Figma', 'After Effects', 'Analytics'],
+    outcomes: ['300% ROI increase'],
+    image:
+      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&q=80',
+  },
+  {
+    id: 'rebranding-project',
+    folderId: 'branding-strategy',
+    title: 'REBRANDING PROJECT',
+    subtitle: 'Legacy system modernization',
+    year: '2023',
+    tags: ['REBRANDING', 'LEGACY', 'STRATEGY'],
+    summary:
+      'Strategic rebranding of enterprise platform — stakeholder alignment, brand architecture, rollout strategy, employee adoption.',
+    role: 'Brand strategist',
+    tools: ['Workshop facilitation', 'Strategy', 'Figma'],
+    outcomes: ['Successful market repositioning'],
+    image:
+      'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80',
+  },
+  {
+    id: 'data-visualization',
+    folderId: 'information-graphics',
+    title: 'DATA VISUALIZATION',
+    subtitle: 'Complex financial metrics',
+    year: '2024',
+    tags: ['DATAVIZ', 'INFOGRAPHIC', 'FINANCIAL'],
+    summary:
+      'Interactive financial dashboard — multi-dimensional data, narrative flow, real-time updates, accessible color schemes.',
+    role: 'Data visualization designer',
+    tools: ['D3.js', 'Observable', 'Figma'],
+    outcomes: ['Published visualization essay'],
+    image:
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
+  },
+  {
+    id: 'infographic-series',
+    folderId: 'information-graphics',
+    title: 'INFOGRAPHIC SERIES',
+    subtitle: 'Climate impact narrative',
+    year: '2023',
+    tags: ['INFOGRAPHIC', 'NARRATIVE', 'CLIMATE'],
+    summary:
+      'Multi-part infographic series translating research data — visual metaphors, progressive complexity, interactive web adaptation.',
+    role: 'Graphic designer',
+    tools: ['Illustrator', 'Figma', 'D3.js'],
+    outcomes: ['30K+ social shares'],
+    image:
+      'https://images.unsplash.com/photo-1553481343-7183a50120c2?w=800&q=80',
+  },
+  {
+    id: 'interactive-story',
+    folderId: 'information-graphics',
+    title: 'INTERACTIVE STORY',
+    subtitle: 'Scrollytelling narrative',
+    year: '2024',
+    tags: ['INTERACTIVE', 'STORY', 'WEB'],
+    summary:
+      'Long-form narrative with embedded data visualization — scroll-driven animation, progressive disclosure, rich media integration.',
+    role: 'Information designer',
+    tools: ['Figma', 'Webflow', 'GSAP'],
+    outcomes: ['Journalism award nomination'],
+    image:
+      'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=800&q=80',
+  },
+  {
+    id: 'furniture-design',
+    folderId: 'spatial-design',
+    title: 'FURNITURE DESIGN',
+    subtitle: 'Modular workspace system',
+    year: '2024',
+    tags: ['FURNITURE', 'MODULAR', 'WORKSPACE'],
+    summary:
+      'Modular office furniture system — ergonomic studies, material specification, manufacturing optimization, assembly documentation.',
+    role: 'Industrial designer',
+    tools: ['Fusion 360', 'Rhino', 'CAD'],
+    outcomes: ['Production partnership established'],
+    image:
+      'https://images.unsplash.com/photo-1540932239986-310128078ceb?w=800&q=80',
+  },
+  {
+    id: 'interior-space',
+    folderId: 'spatial-design',
+    title: 'INTERIOR SPACE',
+    subtitle: 'Tech office design',
+    year: '2023',
+    tags: ['INTERIOR', 'OFFICE', 'SPATIAL'],
+    summary:
+      'Adaptive office interior — collaboration zones, acoustic design, lighting strategy, wayfinding, sustainable materials.',
+    role: 'Interior designer',
+    tools: ['SketchUp', 'Enscape', 'CAD'],
+    outcomes: ['LEED Platinum certification'],
+    image:
+      'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&q=80',
+  },
+  {
+    id: 'packaging-design',
+    folderId: 'spatial-design',
+    title: 'PACKAGING DESIGN',
+    subtitle: 'Sustainable product packaging',
+    year: '2023',
+    tags: ['PACKAGING', 'PRODUCT', 'SUSTAINABLE'],
+    summary:
+      'Zero-waste packaging system — material innovation, structural engineering, die-line development, environmental impact.',
+    role: 'Packaging designer',
+    tools: ['Illustrator', 'CAD', 'Prototyping'],
+    outcomes: ['Zero waste certification'],
+    image:
+      'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&q=80',
   },
 ];
 

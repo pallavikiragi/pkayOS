@@ -4,8 +4,22 @@ export type FolderId =
   | 'sound'
   | 'experiments'
   | 'playground'
+  | 'emerging-media'
+  | 'digital-interfaces'
+  | 'branding-strategy'
+  | 'information-graphics'
+  | 'spatial-design'
   | 'about'
   | 'trash';
+
+export interface CaseStudySection {
+  id: string;
+  label: string;
+  content: string | string[];
+  type: 'text' | 'list' | 'numbered-list' | 'image' | 'embed';
+  image?: string;
+  embedUrl?: string;
+}
 
 export interface Project {
   id: string;
@@ -19,12 +33,13 @@ export interface Project {
   tools: string[];
   outcomes: string[];
   image: string;
+  sections?: CaseStudySection[];
 }
 
 export interface FolderMeta {
   id: FolderId;
   label: string;
-  icon: 'folder' | 'doc' | 'trash' | 'info';
+  icon: 'folder' | 'doc' | 'trash' | 'info' | 'gesture' | 'interface' | 'palette' | 'chart' | 'cube';
   description: string;
 }
 

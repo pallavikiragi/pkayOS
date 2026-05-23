@@ -40,6 +40,61 @@ function IconGraphic({ icon }: { icon: FolderMeta['icon'] }) {
       </svg>
     );
   }
+  if (icon === 'gesture') {
+    return (
+      <svg viewBox="0 0 32 32" className="desktop-icon__svg" aria-hidden>
+        <path d="M6 12 Q12 8 18 12 T30 12" fill="none" stroke="currentColor" strokeWidth="2" />
+        <path d="M6 18 Q12 14 18 18 T30 18" fill="none" stroke="currentColor" strokeWidth="2" />
+        <path d="M8 24 Q14 20 20 24 T28 24" fill="none" stroke="currentColor" strokeWidth="2" />
+      </svg>
+    );
+  }
+  if (icon === 'interface') {
+    return (
+      <svg viewBox="0 0 32 32" className="desktop-icon__svg" aria-hidden>
+        <rect x="5" y="6" width="22" height="20" fill="none" stroke="currentColor" strokeWidth="2" />
+        <line x1="5" y1="12" x2="27" y2="12" stroke="currentColor" strokeWidth="1.5" />
+        <line x1="14" y1="6" x2="14" y2="26" stroke="currentColor" strokeWidth="1.5" />
+        <rect x="7" y="14" width="4" height="4" fill="none" stroke="currentColor" strokeWidth="1" />
+        <rect x="15" y="14" width="4" height="4" fill="none" stroke="currentColor" strokeWidth="1" />
+      </svg>
+    );
+  }
+  if (icon === 'palette') {
+    return (
+      <svg viewBox="0 0 32 32" className="desktop-icon__svg" aria-hidden>
+        <circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" strokeWidth="2" />
+        <circle cx="10" cy="10" r="2" fill="currentColor" />
+        <circle cx="22" cy="10" r="2" fill="currentColor" />
+        <circle cx="8" cy="18" r="2" fill="currentColor" />
+        <circle cx="24" cy="18" r="2" fill="currentColor" />
+        <circle cx="14" cy="24" r="2" fill="currentColor" />
+        <circle cx="18" cy="24" r="2" fill="currentColor" />
+        <circle cx="16" cy="16" r="1.5" fill="currentColor" />
+      </svg>
+    );
+  }
+  if (icon === 'chart') {
+    return (
+      <svg viewBox="0 0 32 32" className="desktop-icon__svg" aria-hidden>
+        <rect x="6" y="8" width="3" height="14" fill="none" stroke="currentColor" strokeWidth="2" />
+        <rect x="12" y="12" width="3" height="10" fill="none" stroke="currentColor" strokeWidth="2" />
+        <rect x="18" y="10" width="3" height="12" fill="none" stroke="currentColor" strokeWidth="2" />
+        <rect x="24" y="6" width="3" height="16" fill="none" stroke="currentColor" strokeWidth="2" />
+        <line x1="4" y1="24" x2="29" y2="24" stroke="currentColor" strokeWidth="2" />
+      </svg>
+    );
+  }
+  if (icon === 'cube') {
+    return (
+      <svg viewBox="0 0 32 32" className="desktop-icon__svg" aria-hidden>
+        <path d="M8 14 L8 24 L16 28 L24 24 L24 14 L16 10 Z" fill="none" stroke="currentColor" strokeWidth="2" />
+        <line x1="16" y1="10" x2="16" y2="28" stroke="currentColor" strokeWidth="1.5" />
+        <line x1="8" y1="14" x2="16" y2="18" stroke="currentColor" strokeWidth="1.5" />
+        <line x1="24" y1="14" x2="16" y2="18" stroke="currentColor" strokeWidth="1.5" />
+      </svg>
+    );
+  }
   return (
     <svg viewBox="0 0 32 32" className="desktop-icon__svg" aria-hidden>
       <path

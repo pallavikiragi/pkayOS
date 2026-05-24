@@ -1,3 +1,9 @@
+export interface MenuItem {
+  label: string;
+  items?: string[];
+  isBold?: boolean;
+}
+
 export type FolderId =
   | 'ux-systems'
   | 'interactive-media'

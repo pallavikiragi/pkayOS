@@ -22,6 +22,14 @@ export function BackgroundSlideshow({ effects }: BackgroundSlideshowProps) {
   const imageOpacity = effects.intensity / 100;
   const asciiCols = 200 + Math.round((effects.asciiMix / 100) * 40);
 
+  // Preload images
+  useEffect(() => {
+    SLIDESHOW_IMAGES.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
+
   useEffect(() => {
     const id = setInterval(() => {
       setIndex((i) => (i + 1) % SLIDESHOW_IMAGES.length);
@@ -62,6 +70,7 @@ export function BackgroundSlideshow({ effects }: BackgroundSlideshowProps) {
             backgroundImage: `url(${src})`,
             filter: slideFilter,
             opacity: i === index ? imageOpacity : 0,
+            zIndex: i === index ? 1 : 0,
           }}
         />
       ))}
@@ -72,6 +81,7 @@ export function BackgroundSlideshow({ effects }: BackgroundSlideshowProps) {
           style={{
             opacity: effects.asciiMix / 100,
             fontSize: `clamp(3px, ${(4.2 - effects.asciiMix / 35).toFixed(2)}vw, 7px)`,
+            zIndex: 2,
           }}
           aria-hidden
         >
@@ -81,7 +91,10 @@ export function BackgroundSlideshow({ effects }: BackgroundSlideshowProps) {
 
       <div
         className="slideshow__grain"
-        style={{ opacity: 0.04 + (100 - effects.intensity) * 0.002 }}
+        style={{ 
+          opacity: 0.04 + (100 - effects.intensity) * 0.002,
+          zIndex: 3 
+        }}
       />
     </div>
   );

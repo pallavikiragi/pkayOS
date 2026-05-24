@@ -108,10 +108,12 @@ function IconGraphic({ icon }: { icon: FolderMeta['icon'] }) {
 }
 
 export function DesktopIcon({ folder, selected, onOpen }: DesktopIconProps) {
+  const isSpecial = folder.label === 'SOUND.EXE';
+
   return (
     <button
       type="button"
-      className={`desktop-icon ${selected ? 'desktop-icon--selected' : ''}`}
+      className={`desktop-icon ${selected ? 'desktop-icon--selected' : ''} ${isSpecial ? 'desktop-icon--special' : ''}`}
       onDoubleClick={onOpen}
       onClick={onOpen}
       aria-label={`Open ${folder.label}`}

@@ -1,15 +1,40 @@
-import type { FolderId, FolderMeta, Project } from '../types';
+import type { FolderId, FolderMeta, Project, MenuItem } from '../types';
 import { AIRPORT_CYBERCULTURE_CONTENT } from './projects/airport-cyberculture';
 import { ORANGE_BUSINESS_CONTENT } from './projects/orange-business';
 import { DELOITTE_CONTENT } from './projects/deloitte';
 
-export const MENU_ITEMS = [
-  'PALLAVI OS',
-  'ARCHIVE',
-  'NETWORK',
-  'SIGNAL',
-  'MEMORY',
-] as const;
+export const MENU_ITEMS: MenuItem[] = [
+  { label: 'PALLAVI OS', isBold: true },
+  {
+    label: 'ARCHIVE',
+    items: ['All projects', 'Featured work', 'Studio work', 'Experiments'],
+  },
+  {
+    label: 'NETWORK',
+    items: ['Collaborations', 'Contact', 'Socials', 'Clients', 'Studios'],
+  },
+  {
+    label: 'SIGNALS',
+    items: [
+      'Music Compositions',
+      'Sound design',
+      'Generative visuals',
+      'Motion tests',
+      'Audio experiments',
+    ],
+  },
+  {
+    label: 'MEMORY',
+    items: [
+      'About',
+      'Resume',
+      'Journey',
+      'Logs',
+      'Inspirations',
+      'Writings',
+    ],
+  },
+];
 
 export const SLIDESHOW_IMAGES = [
   'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=88',

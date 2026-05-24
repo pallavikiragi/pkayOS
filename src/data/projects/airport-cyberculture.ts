@@ -5,7 +5,7 @@ export const AIRPORT_CYBERCULTURE_CONTENT: CaseStudySection[] = [
     id: 'objective',
     label: 'OBJECTIVE',
     type: 'text',
-    content: 'To transform transit wait-times into a contemplative digital experience through reactive ambient media.',
+    content: 'This project introduced me to tools and technologies in the realm of new media and computational development, the influence of each subject New media, cyberculture, and airport stakeholders. It served as a context for airport operations and management, involving passengers and employees, thereby forming a paradigm of cyberculture where each aspect facilitates digital networks and social shaping technologies.Some of the methods I followed were predominantly site visits and case studies, interviewing employees and passengers on their perspectives of travel and management. I also watched a documentary on one of the busiest and oldest airports, London Heathrow which gave a lot of insights into operations and travel in and out of the airport. The site visits were observation visits on types of machines available, stakeholders activity, and even booked a flight to Kochi to understand the insides of the airport. ',
   },
   {
     id: 'context-mapping',

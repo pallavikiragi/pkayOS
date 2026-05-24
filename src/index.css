@@ -63,11 +63,11 @@ button {
   background-size: cover;
   background-position: center;
   opacity: 0;
-  transition: opacity 1.4s ease, filter 0.25s ease;
+  transition: filter 0.25s ease;
 }
 
 .slideshow__slide--active {
-  transition: opacity 1.4s ease, filter 0.25s ease;
+  transition: filter 0.25s ease;
 }
 
 .slideshow__ascii {
@@ -201,11 +201,142 @@ button {
 
 .menu-bar__left {
   display: flex;
-  gap: 20px;
+  height: 100%;
+}
+
+.menu-bar__container {
+  position: relative;
+  height: 100%;
+}
+
+.menu-bar__item {
+  height: 100%;
+  padding: 0 12px;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.menu-bar__item:hover,
+.menu-bar__item--active {
+  background: var(--ink);
+  color: var(--window-bg);
 }
 
 .menu-bar__item strong {
   font-weight: 700;
+}
+
+.mega-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 580px;
+  z-index: 110;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  border: var(--border);
+  background: var(--window-bg);
+  box-shadow: var(--shadow);
+  padding: 0;
+  animation: menu-slide-in 0.15s ease-out;
+}
+
+@keyframes menu-slide-in {
+  from { transform: translateY(-4px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.mega-menu__left {
+  padding: 20px 16px;
+  background: rgba(0, 0, 0, 0.04);
+  border-right: 1px dashed var(--ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mega-menu__profile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mega-menu__name {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+
+.mega-menu__role {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mega-menu__location {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--ink-muted);
+  margin-top: 12px;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+.mega-menu__right {
+  padding: 16px;
+  min-height: 140px;
+  background: var(--window-bg);
+}
+
+.mega-menu__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 12px;
+}
+
+.mega-menu__item {
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-align: left;
+  white-space: nowrap;
+  transition: all 0.1s ease;
+}
+
+.mega-menu__item:hover {
+  background: var(--ink);
+  color: var(--window-bg);
+  border-color: var(--ink);
+}
+
+.mega-menu__empty {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-muted);
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  border: 1px dashed rgba(0, 0, 0, 0.1);
 }
 
 .menu-bar__clock {
@@ -324,6 +455,52 @@ button {
   letter-spacing: 0.04em;
   line-height: 1.2;
   word-break: break-word;
+}
+
+/* ─── Special Icons ─── */
+.desktop-icon--special .desktop-icon__frame {
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient-motion 6s ease infinite;
+  position: relative;
+  overflow: hidden;
+  border-color: #fff;
+}
+
+.desktop-icon--special .desktop-icon__svg {
+  color: #fff;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
+}
+
+.desktop-icon--special .desktop-icon__frame::after {
+  content: "";
+  position: absolute;
+  inset: -100%;
+  background-image: 
+    radial-gradient(1px 1px at 10% 10%, #fff, transparent),
+    radial-gradient(1px 1px at 20% 50%, #fff, transparent),
+    radial-gradient(2px 2px at 40% 20%, #fff, transparent),
+    radial-gradient(1px 1px at 60% 80%, #fff, transparent),
+    radial-gradient(2px 2px at 80% 40%, #fff, transparent),
+    radial-gradient(1px 1px at 90% 90%, #fff, transparent);
+  background-size: 50% 50%;
+  animation: glitter 3s linear infinite;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+@keyframes gradient-motion {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes glitter {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(5px, 5px); }
+  50% { transform: translate(0, 10px); }
+  75% { transform: translate(-5px, 5px); }
+  100% { transform: translate(0, 0); }
 }
 
 /* ─── OS Window ─── */

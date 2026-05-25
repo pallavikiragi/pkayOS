@@ -13,6 +13,15 @@
   --footer-h: 22px;
 }
 
+.pkay-os--sound {
+  --bg-paper: #0a0a0a;
+  --ink: #f4f2ed;
+  --ink-muted: #a0a0a0;
+  --window-bg: #1a1a1a;
+  --border: 2px solid var(--ink);
+  --shadow: 1px 1px 0 rgba(255, 255, 255, 0.15);
+}
+
 *,
 *::before,
 *::after {
@@ -38,6 +47,9 @@ body {
 button {
   font: inherit;
   cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
 }
 
 /* ─── Shell ─── */
@@ -48,6 +60,7 @@ button {
   overflow: hidden;
   background: var(--bg-paper);
   touch-action: none;
+  transition: background-color 0.4s ease;
 }
 
 /* ─── Slideshow ─── */
@@ -110,9 +123,10 @@ button {
   width: 232px;
   padding: 8px 10px;
   border: var(--border);
-  background: rgba(244, 242, 237, 0.96);
+  background: var(--window-bg);
   box-shadow: var(--shadow);
   pointer-events: auto;
+  opacity: 0.96;
 }
 
 .bg-controls__header {
@@ -123,6 +137,7 @@ button {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.14em;
+  color: var(--ink);
 }
 
 .bg-controls__row {
@@ -142,6 +157,7 @@ button {
   font-family: var(--font-mono);
   font-weight: 600;
   letter-spacing: 0.06em;
+  color: var(--ink);
 }
 
 .bg-controls__value {
@@ -159,7 +175,7 @@ button {
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(0, 0, 0, 0.12);
+  background: rgba(var(--ink), 0.12);
   border-radius: 0;
 }
 
@@ -197,6 +213,7 @@ button {
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  color: var(--ink);
 }
 
 .menu-bar__left {
@@ -263,6 +280,10 @@ button {
   justify-content: center;
 }
 
+.pkay-os--sound .mega-menu__left {
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .mega-menu__profile {
   display: flex;
   flex-direction: column;
@@ -271,8 +292,8 @@ button {
 
 .mega-menu__name {
   font-family: var(--font-ui);
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--ink);
   letter-spacing: 0.02em;
 }
@@ -288,7 +309,7 @@ button {
 
 .mega-menu__location {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 9px;
   color: var(--ink-muted);
   margin-top: 12px;
   line-height: 1.4;
@@ -339,11 +360,16 @@ button {
   border: 1px dashed rgba(0, 0, 0, 0.1);
 }
 
+.pkay-os--sound .mega-menu__empty {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .menu-bar__clock {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.08em;
+  color: var(--ink);
 }
 
 /* ─── Desktop ─── */
@@ -406,6 +432,7 @@ button {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   z-index: 50;
+  color: var(--ink);
 }
 
 .desktop__footer-id {
@@ -429,7 +456,7 @@ button {
 .desktop-icon:hover,
 .desktop-icon--selected {
   border-color: var(--ink);
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(var(--ink-rgb), 0.1);
 }
 
 .desktop-icon__frame {
@@ -441,6 +468,7 @@ button {
   border: var(--border);
   background: var(--window-bg);
   box-shadow: var(--shadow);
+  color: var(--ink);
 }
 
 .desktop-icon__svg {
@@ -455,6 +483,7 @@ button {
   letter-spacing: 0.04em;
   line-height: 1.2;
   word-break: break-word;
+  color: var(--ink);
 }
 
 /* ─── Special Icons ─── */
@@ -513,6 +542,7 @@ button {
   box-shadow: var(--shadow);
   min-width: 280px;
   min-height: 200px;
+  color: var(--ink);
 }
 
 .os-window__titlebar {
@@ -584,7 +614,7 @@ button {
   background-color: var(--window-bg);
   background-image: linear-gradient(
     90deg,
-    rgba(0, 0, 0, 0.035) 1px,
+    rgba(var(--ink), 0.035) 1px,
     transparent 1px
   );
   background-size: 24px 100%;
@@ -593,7 +623,7 @@ button {
 
 .os-window__body--readable {
   padding: 16px 20px;
-  background-color: rgba(252, 251, 248, 0.96);
+  background-color: var(--window-bg);
   background-image: none;
 }
 
@@ -624,6 +654,7 @@ button {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   background: var(--bg-paper);
+  color: var(--ink);
 }
 
 /* ─── Resize handles ─── */
@@ -729,6 +760,7 @@ button {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.1em;
+  color: var(--ink);
 }
 
 .folder-window__desc {
@@ -741,6 +773,7 @@ button {
   font-size: 11px;
   letter-spacing: 0.08em;
   margin-top: 24px;
+  color: var(--ink);
 }
 
 /* ─── Filter chips ─── */
@@ -761,6 +794,7 @@ button {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--ink);
 }
 
 .filter-chip:hover {
@@ -875,7 +909,7 @@ button {
 
 .project-card__open:hover {
   background: #fff;
-  color: var(--ink);
+  color: #000;
   border-color: #fff;
 }
 
@@ -886,7 +920,7 @@ button {
   font-size: 9px;
   line-height: 1.4;
   letter-spacing: 0.02em;
-  color: rgba(0, 0, 0, 0.55);
+  color: var(--ink-muted);
 }
 
 /* ─── Case study doc ─── */
@@ -895,14 +929,15 @@ button {
   font-size: 11px;
   line-height: 1.55;
   letter-spacing: 0.02em;
+  color: var(--ink);
 }
 
 .case-study__guides {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  border-left: 1px dotted rgba(0, 0, 0, 0.07);
-  border-right: 1px dotted rgba(0, 0, 0, 0.07);
+  border-left: 1px dotted rgba(var(--ink), 0.07);
+  border-right: 1px dotted rgba(var(--ink), 0.07);
 }
 
 .case-study__margin-left,
@@ -943,6 +978,7 @@ button {
   background-position: center;
   filter: saturate(1.2) contrast(1.04);
   box-shadow: 1px 1px 0 rgba(124, 58, 237, 0.25);
+}
 
 .case-study__anchors {
   display: flex;
@@ -956,7 +992,6 @@ button {
 .case-study__anchors .filter-chip {
   cursor: pointer;
   transition: all 0.2s ease;
-}
 }
 
 .case-study__section {
@@ -1019,6 +1054,7 @@ button {
   border: var(--border);
   background: var(--window-bg);
   box-shadow: var(--shadow);
+  color: var(--ink);
 }
 
 .overview-window--document .overview-window__titlebar {
@@ -1091,7 +1127,7 @@ button {
 }
 
 .overview-window--minimal {
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(var(--ink), 0.2);
 }
 
 .overview-window--minimal .overview-window__body--flush {
@@ -1149,8 +1185,9 @@ button {
   flex: 1;
   min-height: 0;
   overflow: auto;
-  border: 1px dashed rgba(0, 0, 0, 0.15);
-  background: rgba(252, 251, 248, 0.98);
+  border: 1px dashed rgba(var(--ink), 0.15);
+  background: var(--window-bg);
+  opacity: 0.98;
 }
 
 .overview-doc-panel__open {
@@ -1171,6 +1208,7 @@ button {
 
 .release-notes-doc {
   padding: 0 4px;
+  color: var(--ink);
 }
 
 .release-notes-doc--compact .case-study__guides {
@@ -1283,6 +1321,74 @@ button {
   font-size: 11px;
 }
 
+/* ─── Music Player Widget ─── */
+.music-player {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 12px;
+  padding: 4px;
+}
+
+.music-player__cover {
+  width: 100%;
+  aspect-ratio: 1;
+  border: var(--border);
+  background-size: cover;
+  background-position: center;
+  box-shadow: var(--shadow);
+}
+
+.music-player__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.music-player__track {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.music-player__artist {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-muted);
+}
+
+.music-player__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: auto;
+  padding: 8px 0;
+}
+
+.music-player__btn {
+  width: 32px;
+  height: 32px;
+  border: var(--border);
+  background: var(--window-bg);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s ease;
+}
+
+.music-player__btn:hover {
+  background: var(--ink);
+  color: var(--window-bg);
+}
+
+.music-player__btn--play {
+  width: 40px;
+  height: 40px;
+}
+
 /* About / resume */
 .about-doc__photo {
   width: 100%;
@@ -1329,7 +1435,7 @@ button {
 
 .about-resume-list__item {
   padding-bottom: 8px;
-  border-bottom: 1px dashed rgba(0, 0, 0, 0.12);
+  border-bottom: 1px dashed rgba(var(--ink), 0.12);
 }
 
 .about-resume-list__item:last-child {

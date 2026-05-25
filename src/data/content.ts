@@ -47,18 +47,18 @@ export const SLIDESHOW_IMAGES = [
   'https://images.unsplash.com/photo-1519501025264-65ba3770bf71?w=1920&q=88',
 ];
 
-export const FOLDERS: FolderMeta[] = [
+export const DESIGN_FOLDERS: FolderMeta[] = [
   {
-    id: 'ux-systems',
-    label: 'UX SYSTEMS',
-    icon: 'folder',
-    description: 'Telecom · dashboards · enterprise UX',
+    id: 'emerging-media',
+    label: 'INTERACTIVE & EMERGING',
+    icon: 'gesture',
+    description: 'TouchDesigner · installations · immersive',
   },
   {
-    id: 'interactive-media',
-    label: 'INTERACTIVE MEDIA',
-    icon: 'folder',
-    description: 'TouchDesigner · installations · immersive',
+    id: 'digital-interfaces',
+    label: 'UX & DIGITAL',
+    icon: 'interface',
+    description: 'Interfaces · systems · interaction design',
   },
   {
     id: 'sound',
@@ -77,18 +77,6 @@ export const FOLDERS: FolderMeta[] = [
     label: 'PLAYGROUND',
     icon: 'folder',
     description: 'Motion · AI · generative visuals',
-  },
-  {
-    id: 'emerging-media',
-    label: 'INTERACTIVE & EMERGING',
-    icon: 'gesture',
-    description: 'Gesture · spatial · immersive tech',
-  },
-  {
-    id: 'digital-interfaces',
-    label: 'UX & DIGITAL',
-    icon: 'interface',
-    description: 'Interfaces · systems · interaction design',
   },
   {
     id: 'branding-strategy',
@@ -122,10 +110,70 @@ export const FOLDERS: FolderMeta[] = [
   },
 ];
 
+export const SOUND_FOLDERS: FolderMeta[] = [
+  {
+    id: 'albums',
+    label: 'ALBUMS',
+    icon: 'doc',
+    description: 'Full-length releases',
+  },
+  {
+    id: 'singles',
+    label: 'SINGLES',
+    icon: 'doc',
+    description: 'EPs and individual tracks',
+  },
+  {
+    id: 'sound',
+    label: 'DESIGN.EXE',
+    icon: 'interface',
+    description: 'Switch to Design Mode',
+  },
+  {
+    id: 'press',
+    label: 'PRESS',
+    icon: 'info',
+    description: 'Features and interviews',
+  },
+  {
+    id: 'dj-mixes',
+    label: 'DJ MIXES',
+    icon: 'doc',
+    description: 'Live sets and curation',
+  },
+  {
+    id: 'film-score',
+    label: 'FILM SCORE',
+    icon: 'gesture',
+    description: 'Compositions for motion picture',
+  },
+  {
+    id: 'playground',
+    label: 'PLAYGROUND',
+    icon: 'folder',
+    description: 'Sonic experiments',
+  },
+  {
+    id: 'about',
+    label: 'ABOUT',
+    icon: 'info',
+    description: 'Artist profile',
+  },
+  {
+    id: 'trash',
+    label: 'TRASH',
+    icon: 'trash',
+    description: 'Discarded sounds',
+  },
+];
+
+export const ALL_FOLDERS: FolderMeta[] = [...DESIGN_FOLDERS, ...SOUND_FOLDERS];
+export const FOLDERS = ALL_FOLDERS;
+
 export const PROJECTS: Project[] = [
   {
     id: 'orange-business',
-    folderId: 'ux-systems',
+    folderId: 'digital-interfaces',
     title: 'ORANGE BUSINESS',
     subtitle: 'Enterprise telecom experience',
     year: '2024',
@@ -144,7 +192,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'deloitte',
-    folderId: 'ux-systems',
+    folderId: 'digital-interfaces',
     title: 'DELOITTE',
     subtitle: 'Consulting platform UX',
     year: '2023',
@@ -163,7 +211,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'room-booking',
-    folderId: 'ux-systems',
+    folderId: 'digital-interfaces',
     title: 'ROOM BOOKING SYSTEM',
     subtitle: 'Workplace resource UX',
     year: '2023',
@@ -178,7 +226,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'supply-chain',
-    folderId: 'ux-systems',
+    folderId: 'digital-interfaces',
     title: 'SUPPLY CHAIN',
     subtitle: 'Logistics visibility dashboard',
     year: '2022',
@@ -193,7 +241,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'iot-journey',
-    folderId: 'ux-systems',
+    folderId: 'digital-interfaces',
     title: 'IoT JOURNEY',
     subtitle: 'Connected device onboarding',
     year: '2022',
@@ -208,7 +256,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'airport-cyberculture',
-    folderId: 'interactive-media',
+    folderId: 'emerging-media',
     title: 'CYBERCULTURE IN AIRPORTS',
     subtitle: 'Immersive terminal installation',
     year: '2023',
@@ -224,7 +272,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'renewable-energy',
-    folderId: 'interactive-media',
+    folderId: 'emerging-media',
     title: 'RENEWABLE ENERGY',
     subtitle: 'Data-driven installation',
     year: '2023',
@@ -239,7 +287,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'noise-cluster',
-    folderId: 'interactive-media',
+    folderId: 'emerging-media',
     title: 'NOISE CLUSTER',
     subtitle: 'Audio-visual performance system',
     year: '2023',
@@ -254,7 +302,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'leap-motion',
-    folderId: 'interactive-media',
+    folderId: 'emerging-media',
     title: 'LEAP MOTION',
     subtitle: 'Gestural interface experiments',
     year: '2022',

@@ -11,11 +11,12 @@ import { MenuBar } from './components/MenuBar';
 import { OSWindow } from './components/OSWindow';
 import { ProjectWindow } from './components/ProjectWindow';
 import { TrashWindow } from './components/TrashWindow';
-import { FOLDERS } from './data/content';
+import { DESIGN_FOLDERS, SOUND_FOLDERS } from './data/content';
 import { useWindowManager } from './hooks/useWindowManager';
-import type { FolderId } from './types';
+import type { FolderId, OSMode } from './types';
 
 function App() {
+  const [mode, setMode] = useState<OSMode>('design');
   const [selectedFolder, setSelectedFolder] = useState<FolderId | null>(null);
   const [bgEffects, setBgEffects] = useState<BackgroundEffects>(
     DEFAULT_BACKGROUND_EFFECTS,
@@ -43,20 +44,30 @@ function App() {
     };
   }, [onPointerMove, endPointer]);
 
+  const toggleMode = useCallback(() => {
+    setMode((m) => (m === 'design' ? 'sound' : 'design'));
+  }, []);
+
   const handleOpenFolder = useCallback(
     (folderId: FolderId) => {
+      if (folderId === 'sound') {
+        toggleMode();
+        return;
+      }
       setSelectedFolder(folderId);
       openFolder(folderId);
     },
-    [openFolder],
+    [openFolder, toggleMode],
   );
 
   const handleDesktopClick = useCallback(() => {
     setSelectedFolder(null);
   }, []);
 
+  const currentFolders = mode === 'design' ? DESIGN_FOLDERS : SOUND_FOLDERS;
+
   return (
-    <div className="pkay-os" onClick={handleDesktopClick}>
+    <div className={`pkay-os ${mode === 'sound' ? 'pkay-os--sound' : ''}`} onClick={handleDesktopClick}>
       <BackgroundSlideshow effects={bgEffects} />
       <BackgroundEffectsPanel effects={bgEffects} onChange={setBgEffects} />
       <MenuBar />
@@ -66,7 +77,7 @@ function App() {
           className="desktop__icons"
           onClick={(e) => e.stopPropagation()}
         >
-          {FOLDERS.map((folder) => (
+          {currentFolders.map((folder) => (
             <DesktopIcon
               key={folder.id}
               folder={folder}
@@ -76,7 +87,7 @@ function App() {
           ))}
         </aside>
 
-        <DesktopWidgets onOpenProject={openProject} />
+        <DesktopWidgets mode={mode} onOpenProject={openProject} />
 
         <div className="desktop__workspace" onClick={(e) => e.stopPropagation()}>
           {windows.map((win) => {
@@ -125,8 +136,8 @@ function App() {
         </div>
 
         <footer className="desktop__footer">
-          <span>INTERACTION · SYSTEMS · MEDIA · ENTERPRISE · SOUND</span>
-          <span className="desktop__footer-id">PALLAVI OS — DESIGN WORKSTATION</span>
+          <span>{mode === 'design' ? 'INTERACTION · SYSTEMS · MEDIA · ENTERPRISE' : 'ALBUMS · SINGLES · PRESS · MIXES'}</span>
+          <span className="desktop__footer-id">PALLAVI OS — {mode === 'design' ? 'DESIGN WORKSTATION' : 'SOUND STATION'}</span>
         </footer>
       </main>
     </div>

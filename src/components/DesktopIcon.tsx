@@ -108,7 +108,7 @@ function IconGraphic({ icon }: { icon: FolderMeta['icon'] }) {
 }
 
 export function DesktopIcon({ folder, selected, onOpen }: DesktopIconProps) {
-  const isSpecial = folder.label === 'SOUND.EXE';
+  const isSpecial = folder.label === 'SOUND.EXE' || folder.label === 'DESIGN.EXE';
 
   return (
     <button

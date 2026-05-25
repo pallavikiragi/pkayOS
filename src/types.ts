@@ -1,3 +1,5 @@
+export type OSMode = 'design' | 'sound';
+
 export interface MenuItem {
   label: string;
   items?: string[];
@@ -5,9 +7,6 @@ export interface MenuItem {
 }
 
 export type FolderId =
-  | 'ux-systems'
-  | 'interactive-media'
-  | 'sound'
   | 'experiments'
   | 'playground'
   | 'emerging-media'
@@ -15,8 +14,14 @@ export type FolderId =
   | 'branding-strategy'
   | 'information-graphics'
   | 'spatial-design'
+  | 'sound'
   | 'about'
-  | 'trash';
+  | 'trash'
+  | 'albums'
+  | 'singles'
+  | 'press'
+  | 'dj-mixes'
+  | 'film-score';
 
 export interface CaseStudySection {
   id: string;

@@ -3,8 +3,8 @@ export const ABOUT_PHOTO =
 
 export const ABOUT_PROFILE = {
   name: 'PALLAVI KIRAGI',
-  role: 'Interaction Designer · Creative Technologist',
-  status: 'AVAILABLE FOR WORK',
+  role: 'Interaction Designer · Creative Technologist · Generalist/UX',
+  status: 'Employed in Capgemini frog design as an Interaction Designer, based in Bangalore,IN',
   summary:
     'Designing between enterprise UX, experimental systems, immersive media, and sound/cyberculture — work structured as an interactive archive, not a static gallery.',
 };
@@ -12,34 +12,34 @@ export const ABOUT_PROFILE = {
 export const ABOUT_RESUME = {
   experience: [
     {
-      role: 'Lead Interaction Designer',
-      org: 'Orange Business',
-      period: '2023 — PRESENT',
+      role: 'Interaction Designer',
+      org: 'Capgemini frog design',
+      period: 'July 2025 — PRESENT',
       detail: 'B2B telecom · dashboards · design systems',
     },
     {
-      role: 'UX Designer',
-      org: 'Deloitte',
-      period: '2021 — 2023',
+      role: 'Interaction Designer',
+      org: 'ImmersionX Technologies',
+      period: 'May 2024 — Nov 2024',
       detail: 'Consulting platforms · data-heavy workflows',
     },
     {
-      role: 'Interaction / Media Designer',
-      org: 'Independent',
-      period: '2019 — PRESENT',
+      role: 'Designer',
+      org: 'Indian music experience museum',
+      period: '2023— PRESENT',
       detail: 'TouchDesigner · installations · sonic work',
     },
   ],
   education: [
     {
-      degree: 'MA Design / New Media',
-      school: 'Graduate Programme',
-      year: '2019',
+      degree: 'Bachelor of Design (Hons) Human Centered Design',
+      school: 'Srishti Institute of Art, Design and Technology',
+      year: '2023',
     },
     {
-      degree: 'BA Interaction Design',
-      school: 'Design School',
-      year: '2017',
+      degree: 'Bachelor of Vocational Studies (B.Voc) in Creative Manufacturing, Industrial Design',
+      school: 'Srishti Institute of Art, Design and Technology',
+      year: '2019',
     },
   ],
   skills: [
@@ -49,7 +49,7 @@ export const ABOUT_RESUME = {
     'Ableton · Sound design',
   ],
   contact: {
-    email: 'hello@pallavikiragi.com',
+    email: 'pallavikiragi@rocketmail.com',
     links: 'LinkedIn · Are.na · SoundCloud',
   },
 };

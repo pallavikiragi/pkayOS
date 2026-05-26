@@ -1,7 +1,13 @@
-import { useEffect, useState, useRef } from 'react';
-import { MENU_ITEMS } from '../data/content';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { DESIGN_MENU_ITEMS, SOUND_MENU_ITEMS } from '../data/content';
+import type { OSMode, WindowKind, OSWindow } from '../types';
 
-export function MenuBar() {
+interface MenuBarProps {
+  mode: OSMode;
+  onOpenPage: (kind: WindowKind, archiveType?: OSWindow['archiveType']) => void;
+}
+
+export function MenuBar({ mode, onOpenPage }: MenuBarProps) {
   const [time, setTime] = useState('');
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -33,12 +39,38 @@ export function MenuBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const activeMenuItems = MENU_ITEMS.find((m) => m.label === activeMenu)?.items;
+  const handleSubItemClick = useCallback((subItem: string) => {
+    setActiveMenu(null);
+    const item = subItem.toLowerCase();
+
+    // ARCHIVE
+    if (item === 'all projects') onOpenPage('archive', 'all');
+    else if (item === 'featured work') onOpenPage('archive', 'feature');
+    else if (item === 'studio work') onOpenPage('archive', 'studio');
+    else if (item === 'experiments') onOpenPage('experiments');
+    
+    // NETWORK
+    else if (item === 'collaborations') onOpenPage('collaborations');
+    else if (item === 'socials') onOpenPage('socials');
+    else if (item === 'contact') onOpenPage('contact');
+    else if (item === 'clients') onOpenPage('clients');
+
+    // MEMORY
+    else if (item === 'about') onOpenPage('about');
+    else if (item === 'resume') onOpenPage('resume');
+    else if (item === 'journey') onOpenPage('journey');
+    else if (item === 'logs') onOpenPage('logs');
+    else if (item === 'inspirations') onOpenPage('inspirations');
+    else if (item === 'writings') onOpenPage('writings');
+  }, [onOpenPage]);
+
+  const menuItems = mode === 'design' ? DESIGN_MENU_ITEMS : SOUND_MENU_ITEMS;
+  const activeMenuItems = menuItems.find((m) => m.label === activeMenu)?.items;
 
   return (
     <header className="menu-bar">
       <nav className="menu-bar__left" aria-label="System menu" ref={menuRef}>
-        {MENU_ITEMS.map((menu) => (
+        {menuItems.map((menu) => (
           <div key={menu.label} className="menu-bar__container">
             <button
               type="button"
@@ -66,7 +98,12 @@ export function MenuBar() {
               {activeMenuItems ? (
                 <div className="mega-menu__grid">
                   {activeMenuItems.map((subItem) => (
-                    <button key={subItem} type="button" className="mega-menu__item">
+                    <button 
+                      key={subItem} 
+                      type="button" 
+                      className="mega-menu__item"
+                      onClick={() => handleSubItemClick(subItem)}
+                    >
                       {subItem}
                     </button>
                   ))}

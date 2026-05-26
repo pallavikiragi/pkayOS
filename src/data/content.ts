@@ -3,7 +3,7 @@ import { AIRPORT_CYBERCULTURE_CONTENT } from './projects/airport-cyberculture';
 import { ORANGE_BUSINESS_CONTENT } from './projects/orange-business';
 import { DELOITTE_CONTENT } from './projects/deloitte';
 
-export const MENU_ITEMS: MenuItem[] = [
+export const DESIGN_MENU_ITEMS: MenuItem[] = [
   { label: 'PALLAVI OS', isBold: true },
   {
     label: 'ARCHIVE',
@@ -36,6 +36,41 @@ export const MENU_ITEMS: MenuItem[] = [
   },
 ];
 
+export const SOUND_MENU_ITEMS: MenuItem[] = [
+  { label: 'PALLAVI OS', isBold: true },
+  {
+    label: 'SIGNAL',
+    items: [
+      'DJ Mixes',
+      'Film Scores',
+      'Audio Visual',
+      'Experiments',
+      'Live Sessions',
+    ],
+  },
+  {
+    label: 'RELEASES',
+    items: ['Albums', 'Singles', 'Latest Release', 'Featured Work'],
+  },
+  {
+    label: 'MEMORY',
+    items: ['About', 'Process', 'Visual Journal', 'Inspirations', 'Timeline'],
+  },
+  {
+    label: 'NETWORK',
+    items: [
+      'Contact',
+      'Press',
+      'Collaborations',
+      'Socials',
+      'Press Kit',
+      'Streaming Links',
+    ],
+  },
+];
+
+export const MENU_ITEMS = DESIGN_MENU_ITEMS;
+
 export const SLIDESHOW_IMAGES = [
   'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=88',
   'https://images.unsplash.com/photo-1470071459604-3b21adcf929e?w=1920&q=88',
@@ -48,6 +83,35 @@ export const SLIDESHOW_IMAGES = [
 ];
 
 export const DESIGN_FOLDERS: FolderMeta[] = [
+  // COLUMN 1 (Rightmost in RTL, below time) - Items 0-5
+  {
+    id: 'sound',
+    label: 'SOUND.EXE',
+    icon: 'piano',
+    description: 'Music · sonic storytelling · signals',
+  },
+  {
+    id: 'about',
+    label: 'ABOUT',
+    icon: 'user',
+    description: 'Operator profile · contact',
+  },
+  {
+    id: 'playground',
+    label: 'PLAYGROUND',
+    icon: 'folder',
+    description: 'Motion · AI · generative visuals',
+  },
+  {
+    id: 'trash',
+    label: 'TRASH',
+    icon: 'trash',
+    description: 'Discarded drafts',
+  },
+  { id: 'p1', label: '', icon: 'folder', description: '' },
+  { id: 'p2', label: '', icon: 'folder', description: '' },
+
+  // COLUMN 2 (Left of system column) - Items 6-11
   {
     id: 'emerging-media',
     label: 'INTERACTIVE & EMERGING',
@@ -61,22 +125,10 @@ export const DESIGN_FOLDERS: FolderMeta[] = [
     description: 'Interfaces · systems · interaction design',
   },
   {
-    id: 'sound',
-    label: 'SOUND.EXE',
-    icon: 'doc',
-    description: 'Music · sonic storytelling · signals',
-  },
-  {
     id: 'experiments',
     label: 'AI EXPERIMENTS',
-    icon: 'folder',
+    icon: 'sparkle',
     description: 'Systems · prototypes · speculative UI',
-  },
-  {
-    id: 'playground',
-    label: 'PLAYGROUND',
-    icon: 'folder',
-    description: 'Motion · AI · generative visuals',
   },
   {
     id: 'branding-strategy',
@@ -96,56 +148,21 @@ export const DESIGN_FOLDERS: FolderMeta[] = [
     icon: 'cube',
     description: 'Physical design · environments · objects',
   },
-  {
-    id: 'about',
-    label: 'ABOUT',
-    icon: 'info',
-    description: 'Operator profile · contact',
-  },
-  {
-    id: 'trash',
-    label: 'TRASH',
-    icon: 'trash',
-    description: 'Discarded drafts',
-  },
 ];
 
 export const SOUND_FOLDERS: FolderMeta[] = [
-  {
-    id: 'albums',
-    label: 'ALBUMS',
-    icon: 'doc',
-    description: 'Full-length releases',
-  },
-  {
-    id: 'singles',
-    label: 'SINGLES',
-    icon: 'doc',
-    description: 'EPs and individual tracks',
-  },
+  // COLUMN 1 (Rightmost in RTL, below time) - Items 0-5
   {
     id: 'sound',
     label: 'DESIGN.EXE',
-    icon: 'interface',
+    icon: 'cursor',
     description: 'Switch to Design Mode',
   },
   {
-    id: 'press',
-    label: 'PRESS',
-    icon: 'info',
-    description: 'Features and interviews',
-  },
-  {
-    id: 'dj-mixes',
-    label: 'DJ MIXES',
-    icon: 'doc',
-    description: 'Live sets and curation',
-  },
-  {
-    id: 'film-score',
-    label: 'FILM SCORE',
-    icon: 'gesture',
-    description: 'Compositions for motion picture',
+    id: 'about',
+    label: 'ABOUT',
+    icon: 'user',
+    description: 'Artist profile',
   },
   {
     id: 'playground',
@@ -154,23 +171,66 @@ export const SOUND_FOLDERS: FolderMeta[] = [
     description: 'Sonic experiments',
   },
   {
-    id: 'about',
-    label: 'ABOUT',
-    icon: 'info',
-    description: 'Artist profile',
-  },
-  {
     id: 'trash',
     label: 'TRASH',
     icon: 'trash',
     description: 'Discarded sounds',
   },
+  { id: 'ps-f1', label: '', icon: 'folder', description: '' },
+  { id: 'ps-f2', label: '', icon: 'folder', description: '' },
+
+  // COLUMN 2 - Items 6-11
+  {
+    id: 'albums',
+    label: 'ALBUMS',
+    icon: 'vinyl',
+    description: 'Full-length releases',
+  },
+  {
+    id: 'singles',
+    label: 'SINGLES',
+    icon: 'single',
+    description: 'EPs and individual tracks',
+  },
+  {
+    id: 'press',
+    label: 'PRESS',
+    icon: 'doc',
+    description: 'Features and interviews',
+  },
+  {
+    id: 'dj-mixes',
+    label: 'DJ MIXES',
+    icon: 'dj',
+    description: 'Live sets and curation',
+  },
+  {
+    id: 'film-score',
+    label: 'FILM SCORE',
+    icon: 'clapper',
+    description: 'Compositions for motion picture',
+  },
+  { id: 'ps-f3', label: '', icon: 'folder', description: '' },
 ];
 
 export const ALL_FOLDERS: FolderMeta[] = [...DESIGN_FOLDERS, ...SOUND_FOLDERS];
 export const FOLDERS = ALL_FOLDERS;
 
 export const PROJECTS: Project[] = [
+  {
+    id: 'covid-sound',
+    folderId: 'sound',
+    title: 'COVID SOUND',
+    subtitle: 'MoCDA Featured Project',
+    year: '2022',
+    tags: ['SOUND', 'EXHIBITION', 'VIRTUAL'],
+    summary:
+      'My project "Covid Sound" was selected alongside other 30 international projects in a virtual museum showcase conducted by Museum of Contemporary Digital Arts (MoCDA).',
+    role: 'Sound Artist',
+    tools: ['Ableton', 'Data Sonification'],
+    outcomes: ['Featured in international virtual exhibition'],
+    image: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=800&q=80',
+  },
   {
     id: 'orange-business',
     folderId: 'digital-interfaces',

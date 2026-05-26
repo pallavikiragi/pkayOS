@@ -19,13 +19,28 @@ export function getDefaultSize(kind: WindowKind): { width: number; height: numbe
   switch (kind) {
     case 'project':
       return {
-        width: Math.round(Math.min(maxW * 0.82, maxW)),
-        height: Math.round(Math.min(maxH * 0.78, maxH)),
+        width: Math.round(window.innerWidth / 2),
+        height: maxH,
       };
     case 'folder':
       return {
         width: Math.round(Math.min(maxW * 0.62, 820)),
         height: Math.round(Math.min(maxH * 0.72, 620)),
+      };
+    case 'archive':
+    case 'experiments':
+    case 'collaborations':
+    case 'socials':
+    case 'contact':
+    case 'clients':
+    case 'resume':
+    case 'journey':
+    case 'logs':
+    case 'inspirations':
+    case 'writings':
+      return {
+        width: maxW - 40,
+        height: maxH - 20,
       };
     case 'about':
       return { width: 420, height: 400 };
@@ -41,6 +56,17 @@ export function getMinSize(kind: WindowKind): { width: number; height: number } 
     case 'project':
       return { width: 420, height: 320 };
     case 'folder':
+    case 'archive':
+    case 'experiments':
+    case 'collaborations':
+    case 'socials':
+    case 'contact':
+    case 'clients':
+    case 'resume':
+    case 'journey':
+    case 'logs':
+    case 'inspirations':
+    case 'writings':
       return { width: 360, height: 280 };
     default:
       return { width: 280, height: 200 };

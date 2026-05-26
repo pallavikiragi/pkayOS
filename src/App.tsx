@@ -11,6 +11,17 @@ import { MenuBar } from './components/MenuBar';
 import { OSWindow } from './components/OSWindow';
 import { ProjectWindow } from './components/ProjectWindow';
 import { TrashWindow } from './components/TrashWindow';
+import { ArchivePage } from './components/ArchivePage';
+import { ExperimentsPage } from './components/ExperimentsPage';
+import { CollaborationsPage } from './components/CollaborationsPage';
+import { SocialsPage } from './components/SocialsPage';
+import { ContactPage } from './components/ContactPage';
+import { ClientsPage } from './components/ClientsPage';
+import { ResumePage } from './components/ResumePage';
+import { JourneyPage } from './components/JourneyPage';
+import { LogsPage } from './components/LogsPage';
+import { InspirationsPage } from './components/InspirationsPage';
+import { WritingsPage } from './components/WritingsPage';
 import { DESIGN_FOLDERS, SOUND_FOLDERS } from './data/content';
 import { useWindowManager } from './hooks/useWindowManager';
 import type { FolderId, OSMode } from './types';
@@ -25,6 +36,7 @@ function App() {
     windows,
     openFolder,
     openProject,
+    openPage,
     closeWindow,
     focusWindow,
     startDrag,
@@ -69,22 +81,27 @@ function App() {
   return (
     <div className={`pkay-os ${mode === 'sound' ? 'pkay-os--sound' : ''}`} onClick={handleDesktopClick}>
       <BackgroundSlideshow effects={bgEffects} />
-      <BackgroundEffectsPanel effects={bgEffects} onChange={setBgEffects} />
-      <MenuBar />
+      {/* <BackgroundEffectsPanel effects={bgEffects} onChange={setBgEffects} /> */}
+      <MenuBar mode={mode} onOpenPage={openPage} />
 
       <main className="desktop">
         <aside
           className="desktop__icons"
           onClick={(e) => e.stopPropagation()}
         >
-          {currentFolders.map((folder) => (
-            <DesktopIcon
-              key={folder.id}
-              folder={folder}
-              selected={selectedFolder === folder.id}
-              onOpen={() => handleOpenFolder(folder.id)}
-            />
-          ))}
+          {currentFolders.map((folder) => {
+            if (!folder.label) {
+              return <div key={folder.id} className="desktop-icon" style={{ visibility: 'hidden', pointerEvents: 'none' }} />;
+            }
+            return (
+              <DesktopIcon
+                key={folder.id}
+                folder={folder}
+                selected={selectedFolder === folder.id}
+                onOpen={() => handleOpenFolder(folder.id)}
+              />
+            );
+          })}
         </aside>
 
         <DesktopWidgets mode={mode} onOpenProject={openProject} />
@@ -130,6 +147,17 @@ function App() {
                 )}
                 {win.kind === 'about' && <AboutWindow />}
                 {win.kind === 'trash' && <TrashWindow />}
+                {win.kind === 'archive' && <ArchivePage type={win.archiveType!} onOpenProject={openProject} />}
+                {win.kind === 'experiments' && <ExperimentsPage />}
+                {win.kind === 'collaborations' && <CollaborationsPage onOpenProject={openProject} />}
+                {win.kind === 'socials' && <SocialsPage />}
+                {win.kind === 'contact' && <ContactPage />}
+                {win.kind === 'clients' && <ClientsPage onOpenProject={openProject} />}
+                {win.kind === 'resume' && <ResumePage />}
+                {win.kind === 'journey' && <JourneyPage />}
+                {win.kind === 'logs' && <LogsPage />}
+                {win.kind === 'inspirations' && <InspirationsPage />}
+                {win.kind === 'writings' && <WritingsPage />}
               </OSWindow>
             );
           })}

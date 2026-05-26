@@ -3,7 +3,6 @@ import type { FolderId, OSWindow, WindowKind } from '../types';
 import { FOLDERS, getProject } from '../data/content';
 import {
   applyResize,
-  centerPosition,
   getDefaultSize,
   getMinSize,
   getViewportBounds,
@@ -35,7 +34,7 @@ function createWindow(
     partial.x !== undefined && partial.y !== undefined
       ? { x: partial.x, y: partial.y }
       : partial.kind === 'project'
-        ? centerPosition(size.width, size.height)
+        ? { x: 0, y: 28 } // Pin to top-left below menu bar
         : nextPosition();
 
   return {
@@ -72,24 +71,47 @@ export function useWindowManager() {
     );
   }, []);
 
+  const openPage = useCallback(
+    (kind: WindowKind, archiveType?: OSWindow['archiveType']) => {
+      const id = archiveType ? makeId(kind, archiveType) : makeId(kind, 'main');
+      const titles: Record<string, string> = {
+        archive: archiveType === 'all' ? 'ALL_PROJECTS.INDEX' : archiveType === 'feature' ? 'FEATURED_WORK.INDEX' : 'STUDIO_WORK.INDEX',
+        experiments: 'EXPERIMENTS.GALLERY',
+        collaborations: 'COLLABORATIONS.GALLERY',
+        socials: 'SOCIALS.POPUP',
+        contact: 'CONTACT.POPUP',
+        clients: 'CLIENTS.GALLERY',
+        resume: 'RESUME.PDF',
+        journey: 'JOURNEY.ROADMAP',
+        logs: 'LOGS.RELEASE_NOTES',
+        inspirations: 'INSPIRATIONS.MOODBOARD',
+        writings: 'WRITINGS.BLOG',
+        about: 'ABOUT.TXT',
+      };
+
+      setWindows((prev) => {
+        if (prev.find((w) => w.id === id)) return prev;
+        zCounter += 1;
+        return [
+          ...prev,
+          createWindow({
+            id,
+            kind,
+            title: titles[kind] || kind.toUpperCase(),
+            archiveType,
+            zIndex: zCounter,
+          }),
+        ];
+      });
+      setTimeout(() => bringToFront(id), 0);
+    },
+    [bringToFront],
+  );
+
   const openFolder = useCallback(
     (folderId: FolderId) => {
       if (folderId === 'about') {
-        const id = makeId('about', 'main');
-        setWindows((prev) => {
-          if (prev.find((w) => w.id === id)) return prev;
-          zCounter += 1;
-          return [
-            ...prev,
-            createWindow({
-              id,
-              kind: 'about',
-              title: 'ABOUT.TXT',
-              zIndex: zCounter,
-            }),
-          ];
-        });
-        setTimeout(() => bringToFront(id), 0);
+        openPage('about');
         return;
       }
 
@@ -130,7 +152,7 @@ export function useWindowManager() {
       });
       setTimeout(() => bringToFront(id), 0);
     },
-    [bringToFront],
+    [bringToFront, openPage],
   );
 
   const openProject = useCallback(
@@ -253,6 +275,7 @@ export function useWindowManager() {
     windows,
     openFolder,
     openProject,
+    openPage,
     closeWindow,
     focusWindow,
     startDrag,

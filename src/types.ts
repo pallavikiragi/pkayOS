@@ -54,7 +54,7 @@ export interface FolderMeta {
   description: string;
 }
 
-export type WindowKind = 'folder' | 'project' | 'about' | 'trash';
+export type WindowKind = 'folder' | 'project' | 'about' | 'trash' | 'archive' | 'experiments' | 'collaborations' | 'socials' | 'contact' | 'clients' | 'resume' | 'journey' | 'logs' | 'inspirations' | 'writings';
 
 export interface OSWindow {
   id: string;
@@ -62,6 +62,7 @@ export interface OSWindow {
   title: string;
   folderId?: FolderId;
   projectId?: string;
+  archiveType?: 'all' | 'feature' | 'studio';
   x: number;
   y: number;
   width: number;

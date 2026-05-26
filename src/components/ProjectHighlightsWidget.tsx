@@ -1,10 +1,5 @@
-import { useMemo, useState } from 'react';
-import { getHighlightProjects } from '../data/widgets';
-import type { WidgetLayout } from '../data/widgets';
 import { OverviewWindow } from './OverviewWindow';
-import { ProjectTile } from './ProjectTile';
-
-const PER_PAGE = 1;
+import type { WidgetLayout } from '../data/widgets';
 
 interface ProjectHighlightsWidgetProps {
   title: string;
@@ -17,18 +12,6 @@ export function ProjectHighlightsWidget({
   layout,
   onOpenProject,
 }: ProjectHighlightsWidgetProps) {
-  const projects = useMemo(() => getHighlightProjects(), []);
-  const pageCount = Math.max(1, Math.ceil(projects.length / PER_PAGE));
-  const [page, setPage] = useState(0);
-
-  const visible = projects.slice(
-    page * PER_PAGE,
-    page * PER_PAGE + PER_PAGE,
-  );
-
-  const goPrev = () => setPage((p) => (p - 1 + pageCount) % pageCount);
-  const goNext = () => setPage((p) => (p + 1) % pageCount);
-
   return (
     <OverviewWindow
       title={title}
@@ -39,32 +22,43 @@ export function ProjectHighlightsWidget({
           <button
             type="button"
             className="overview-window__nav-btn"
-            onClick={goPrev}
-            aria-label="Previous projects"
+            aria-label="Previous project"
           >
             ←
           </button>
           <button
             type="button"
             className="overview-window__nav-btn"
-            onClick={goNext}
-            aria-label="Next projects"
+            aria-label="Next project"
           >
             →
           </button>
         </div>
       }
     >
-      <ul className="project-grid project-grid--widget project-grid--widget-single">
-        {visible[0] && (
-          <ProjectTile
-            key={visible[0].id}
-            project={visible[0]}
-            excerptLength={120}
-            onOpen={onOpenProject}
-          />
-        )}
-      </ul>
+      <div className="highlight-feature">
+        <div className="highlight-feature__banner">
+          Project feature in Digital Summer Show of MoCDA
+        </div>
+        <div 
+          className="highlight-feature__image" 
+          style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=800&q=80)' }}
+        />
+        <div className="highlight-feature__content">
+          <p className="highlight-feature__desc">
+            My project "Covid Sound" was selected alongside other 30 international projects in a virtual museum showcase conducted by Museum of Contemporary Digital Arts (MoCDA).
+          </p>
+          <div className="highlight-feature__meta">
+            <span className="highlight-feature__year">YEAR: 2022</span>
+            <button 
+              className="highlight-feature__cta"
+              onClick={() => onOpenProject('covid-sound')}
+            >
+              OPEN PROJECT →
+            </button>
+          </div>
+        </div>
+      </div>
     </OverviewWindow>
   );
 }

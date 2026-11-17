@@ -57,8 +57,13 @@ export function ProjectWindow({ projectId }: ProjectWindowProps) {
       </div>
 
       <header className="case-study__header">
-        <p>CASE STUDY: {project.title.toUpperCase()}</p>
-        <p>IDENTIFIER: {project.id.toUpperCase()}</p>
+        <div className="case-study__header-row">
+          <p className="case-study__header-title">CASE STUDY: {project.title.toUpperCase()}</p>
+          <span className="case-study__header-id">IDENTIFIER: {project.id.toUpperCase()}</span>
+        </div>
+        <p className="case-study__header-sub">
+          ROLE: {project.role.toUpperCase()} · TIMELINE: {project.year} · CATEGORY: {project.folderId.toUpperCase()}
+        </p>
       </header>
 
       <hr className="case-study__rule" />

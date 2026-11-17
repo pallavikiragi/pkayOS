@@ -8,7 +8,7 @@ export function JourneyPage() {
   return (
     <div className="journey-page">
       <div className="roadmap">
-        {milestones.map((m, i) => (
+        {milestones.map((m) => (
           <div key={m.year} className="roadmap-item">
             <div className="roadmap-marker">
               <div className="roadmap-year">{m.year}</div>

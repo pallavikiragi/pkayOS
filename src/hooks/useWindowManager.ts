@@ -30,12 +30,28 @@ function createWindow(
   },
 ): OSWindow {
   const size = getDefaultSize(partial.kind);
+
+  let defaultX: number;
+  let defaultY: number;
+
+  if (partial.kind === 'project') {
+    // Occupies 3/4 width and full height, centered horizontally, starts directly below menu bar
+    defaultX = Math.max(0, Math.round((window.innerWidth - size.width) / 2));
+    defaultY = 28;
+  } else if (partial.kind === 'folder') {
+    // Match the reference grid popup size and center it in the viewport.
+    defaultX = Math.max(0, Math.round((window.innerWidth - size.width) / 2));
+    defaultY = Math.max(28, Math.round(28 + (window.innerHeight - 28 - size.height) / 2));
+  } else {
+    const next = nextPosition();
+    defaultX = next.x;
+    defaultY = next.y;
+  }
+
   const pos =
     partial.x !== undefined && partial.y !== undefined
       ? { x: partial.x, y: partial.y }
-      : partial.kind === 'project'
-        ? { x: 0, y: 28 } // Pin to top-left below menu bar
-        : nextPosition();
+      : { x: defaultX, y: defaultY };
 
   return {
     ...partial,
@@ -48,6 +64,9 @@ function createWindow(
 
 export function useWindowManager() {
   const [windows, setWindows] = useState<OSWindow[]>([]);
+  const restoreBoundsRef = useRef(
+    new Map<string, Pick<OSWindow, 'x' | 'y' | 'width' | 'height'>>(),
+  );
   const dragRef = useRef<{
     id: string;
     startX: number;
@@ -181,7 +200,65 @@ export function useWindowManager() {
 
   const closeWindow = useCallback((id: string) => {
     setWindows((prev) => prev.filter((w) => w.id !== id));
+    restoreBoundsRef.current.delete(id);
   }, []);
+
+  const minimizeWindow = useCallback((id: string) => {
+    setWindows((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, isMinimized: true } : w)),
+    );
+  }, []);
+
+  const restoreWindow = useCallback(
+    (id: string) => {
+      setWindows((prev) =>
+        prev.map((w) => (w.id === id ? { ...w, isMinimized: false } : w)),
+      );
+      bringToFront(id);
+    },
+    [bringToFront],
+  );
+
+  const toggleMaximize = useCallback(
+    (id: string) => {
+      const current = windows.find((w) => w.id === id);
+      if (!current) return;
+
+      if (current.isMaximized) {
+        const bounds = restoreBoundsRef.current.get(id);
+        if (!bounds) return;
+        restoreBoundsRef.current.delete(id);
+        setWindows((prev) =>
+          prev.map((w) =>
+            w.id === id ? { ...w, ...bounds, isMaximized: false } : w,
+          ),
+        );
+      } else {
+        restoreBoundsRef.current.set(id, {
+          x: current.x,
+          y: current.y,
+          width: current.width,
+          height: current.height,
+        });
+        setWindows((prev) =>
+          prev.map((w) =>
+            w.id === id
+              ? {
+                  ...w,
+                  x: 0,
+                  y: 0,
+                  width: window.innerWidth,
+                  height: Math.max(200, window.innerHeight - 50 - 24),
+                  isMaximized: true,
+                }
+              : w,
+          ),
+        );
+      }
+      bringToFront(id);
+    },
+    [windows, bringToFront],
+  );
 
   const focusWindow = useCallback(
     (id: string) => {
@@ -277,6 +354,9 @@ export function useWindowManager() {
     openProject,
     openPage,
     closeWindow,
+    minimizeWindow,
+    restoreWindow,
+    toggleMaximize,
     focusWindow,
     startDrag,
     startResize,

@@ -25,9 +25,14 @@ export function FolderWindow({ folderId, onOpenProject }: FolderWindowProps) {
   return (
     <div className="folder-window">
       <header className="folder-window__header">
-        <p className="folder-window__path">
-          DESKTOP / {folder?.label ?? 'UNKNOWN'}
-        </p>
+        <div className="folder-window__title-row">
+          <p className="folder-window__path">
+            DESKTOP / {folder?.label ?? 'UNKNOWN'}
+          </p>
+          <span className="folder-window__count">
+            {projects.length} {projects.length === 1 ? 'FILE' : 'FILES'}
+          </span>
+        </div>
         <p className="folder-window__desc">{folder?.description}</p>
       </header>
 

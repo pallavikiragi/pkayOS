@@ -82,7 +82,7 @@ export const SLIDESHOW_IMAGES = [
   'https://images.unsplash.com/photo-1519501025264-65ba3770bf71?w=1920&q=88',
 ];
 
-export const DESIGN_FOLDERS: FolderMeta[] = [
+export const DESIGN_FOLDERS: (FolderMeta | null)[] = [
   // COLUMN 1 (Rightmost in RTL, below time) - Items 0-5
   {
     id: 'sound',
@@ -108,8 +108,8 @@ export const DESIGN_FOLDERS: FolderMeta[] = [
     icon: 'trash',
     description: 'Discarded drafts',
   },
-  { id: 'p1', label: '', icon: 'folder', description: '' },
-  { id: 'p2', label: '', icon: 'folder', description: '' },
+  null,
+  null,
 
   // COLUMN 2 (Left of system column) - Items 6-11
   {
@@ -150,7 +150,7 @@ export const DESIGN_FOLDERS: FolderMeta[] = [
   },
 ];
 
-export const SOUND_FOLDERS: FolderMeta[] = [
+export const SOUND_FOLDERS: (FolderMeta | null)[] = [
   // COLUMN 1 (Rightmost in RTL, below time) - Items 0-5
   {
     id: 'sound',
@@ -176,8 +176,8 @@ export const SOUND_FOLDERS: FolderMeta[] = [
     icon: 'trash',
     description: 'Discarded sounds',
   },
-  { id: 'ps-f1', label: '', icon: 'folder', description: '' },
-  { id: 'ps-f2', label: '', icon: 'folder', description: '' },
+  null,
+  null,
 
   // COLUMN 2 - Items 6-11
   {
@@ -210,10 +210,29 @@ export const SOUND_FOLDERS: FolderMeta[] = [
     icon: 'clapper',
     description: 'Compositions for motion picture',
   },
-  { id: 'ps-f3', label: '', icon: 'folder', description: '' },
+  null,
 ];
 
-export const ALL_FOLDERS: FolderMeta[] = [...DESIGN_FOLDERS, ...SOUND_FOLDERS];
+export const EXTRA_FOLDERS: FolderMeta[] = [
+  {
+    id: 'visual-systems',
+    label: 'VISUAL SYSTEMS',
+    icon: 'palette',
+    description: 'Brand systems · visual identity · information architecture',
+  },
+  {
+    id: 'creative-technology',
+    label: 'CREATIVE TECHNOLOGY',
+    icon: 'sparkle',
+    description: 'Interactive installations · TouchDesigner · generative visuals',
+  },
+];
+
+export const ALL_FOLDERS: FolderMeta[] = [
+  ...DESIGN_FOLDERS,
+  ...SOUND_FOLDERS,
+  ...EXTRA_FOLDERS,
+].filter((folder): folder is FolderMeta => folder !== null);
 export const FOLDERS = ALL_FOLDERS;
 
 export const PROJECTS: Project[] = [
@@ -738,6 +757,23 @@ export const PROJECTS: Project[] = [
 ];
 
 export function getProjectsByFolder(folderId: FolderId): Project[] {
+  if (folderId === 'visual-systems') {
+    return PROJECTS.filter(
+      (p) =>
+        p.folderId === 'branding-strategy' ||
+        p.folderId === 'information-graphics',
+    );
+  }
+  if (folderId === 'creative-technology') {
+    return PROJECTS.filter(
+      (p) => p.folderId === 'emerging-media' || p.folderId === 'playground',
+    );
+  }
+  if (folderId === 'experiments') {
+    return PROJECTS.filter(
+      (p) => p.folderId === 'experiments' || p.folderId === 'playground',
+    );
+  }
   return PROJECTS.filter((p) => p.folderId === folderId);
 }
 

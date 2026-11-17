@@ -21,7 +21,9 @@ export type FolderId =
   | 'singles'
   | 'press'
   | 'dj-mixes'
-  | 'film-score';
+  | 'film-score'
+  | 'visual-systems'
+  | 'creative-technology';
 
 export interface CaseStudySection {
   id: string;
@@ -50,7 +52,24 @@ export interface Project {
 export interface FolderMeta {
   id: FolderId;
   label: string;
-  icon: 'folder' | 'doc' | 'trash' | 'info' | 'gesture' | 'interface' | 'palette' | 'chart' | 'cube';
+  icon:
+    | 'folder'
+    | 'doc'
+    | 'trash'
+    | 'info'
+    | 'gesture'
+    | 'interface'
+    | 'palette'
+    | 'chart'
+    | 'cube'
+    | 'user'
+    | 'piano'
+    | 'single'
+    | 'vinyl'
+    | 'dj'
+    | 'clapper'
+    | 'cursor'
+    | 'sparkle';
   description: string;
 }
 
@@ -68,4 +87,6 @@ export interface OSWindow {
   width: number;
   height: number;
   zIndex: number;
+  isMinimized?: boolean;
+  isMaximized?: boolean;
 }

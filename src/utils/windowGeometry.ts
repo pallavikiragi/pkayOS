@@ -2,14 +2,14 @@ import type { WindowKind } from '../types';
 
 export type ResizeHandle = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 
-const CHROME = 50; // menu + footer
+const MENU_BAR_HEIGHT = 28;
 
 export function getViewportBounds() {
   return {
     vw: window.innerWidth,
     vh: window.innerHeight,
-    maxW: window.innerWidth - 24,
-    maxH: window.innerHeight - CHROME,
+    maxW: window.innerWidth,
+    maxH: window.innerHeight - MENU_BAR_HEIGHT,
   };
 }
 
@@ -19,13 +19,14 @@ export function getDefaultSize(kind: WindowKind): { width: number; height: numbe
   switch (kind) {
     case 'project':
       return {
-        width: Math.round(window.innerWidth / 2),
-        height: maxH,
+        // Case study popup occupies 3/4 of the window length and full height
+        width: Math.min(window.innerWidth, Math.round(window.innerWidth * 0.75)),
+        height: window.innerHeight - MENU_BAR_HEIGHT,
       };
     case 'folder':
       return {
-        width: Math.round(Math.min(maxW * 0.62, 820)),
-        height: Math.round(Math.min(maxH * 0.72, 620)),
+        width: Math.min(820, Math.max(280, maxW - 24)),
+        height: Math.min(548, maxH),
       };
     case 'archive':
     case 'experiments':
@@ -114,7 +115,7 @@ export function applyResize(
   }
 
   x = Math.max(0, Math.min(x, window.innerWidth - width));
-  y = Math.max(28, Math.min(y, window.innerHeight - height - 24));
+  y = Math.max(28, Math.min(y, window.innerHeight - height));
 
   return { x, y, width, height };
 }

@@ -1,14 +1,33 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { DESIGN_MENU_ITEMS, SOUND_MENU_ITEMS } from '../data/content';
 import type { OSMode, WindowKind, OSWindow } from '../types';
+import navLogo from '../assets/navigation/logo.svg';
+import figmaIcon from '../assets/navigation/figma.svg';
+import emailIcon from '../assets/navigation/email.svg';
+import aiIcon from '../assets/navigation/ai.svg';
+import batteryIcon from '../assets/navigation/battery.svg';
+import wifiIcon from '../assets/navigation/wifi.svg';
+import searchIcon from '../assets/navigation/search.svg';
 
 interface MenuBarProps {
   mode: OSMode;
+  activePage: 'home' | 'profile';
   onOpenPage: (kind: WindowKind, archiveType?: OSWindow['archiveType']) => void;
+  onToggleMode: () => void;
+  onShowHome: () => void;
+  onShowProfile: () => void;
 }
 
-export function MenuBar({ mode, onOpenPage }: MenuBarProps) {
+export function MenuBar({
+  mode,
+  activePage,
+  onOpenPage,
+  onToggleMode,
+  onShowHome,
+  onShowProfile,
+}: MenuBarProps) {
   const [time, setTime] = useState('');
+  const [date, setDate] = useState('');
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -21,6 +40,13 @@ export function MenuBar({ mode, onOpenPage }: MenuBarProps) {
           minute: '2-digit',
           second: '2-digit',
           hour12: false,
+        }),
+      );
+      setDate(
+        now.toLocaleDateString('en-GB', {
+          weekday: 'short',
+          day: '2-digit',
+          month: 'short',
         }),
       );
     };
@@ -70,14 +96,33 @@ export function MenuBar({ mode, onOpenPage }: MenuBarProps) {
   return (
     <header className="menu-bar">
       <nav className="menu-bar__left" aria-label="System menu" ref={menuRef}>
-        {menuItems.map((menu) => (
+        <img className="menu-bar__logo" src={navLogo} alt="" />
+        <button type="button" className="menu-bar__brand" onClick={() => setActiveMenu(null)}>
+          <strong>PALLAVI OS</strong>
+        </button>
+        <span className="menu-bar__slash" aria-hidden="true">/</span>
+        {[
+          { label: 'Home', active: activePage === 'home' },
+          { label: 'Archive', active: false },
+          { label: 'Profile', active: activePage === 'profile' },
+        ].map((menu) => (
           <div key={menu.label} className="menu-bar__container">
             <button
               type="button"
-              className={`menu-bar__item ${activeMenu === menu.label ? 'menu-bar__item--active' : ''}`}
-              onClick={() => setActiveMenu(activeMenu === menu.label ? null : menu.label)}
+              className={`menu-bar__item ${menu.active ? 'menu-bar__item--active' : ''}`}
+              onClick={() => {
+                if (menu.label === 'Archive') onOpenPage('archive', 'all');
+                if (menu.label === 'Profile') {
+                  setActiveMenu(null);
+                  onShowProfile();
+                }
+                if (menu.label === 'Home') {
+                  setActiveMenu(null);
+                  onShowHome();
+                }
+              }}
             >
-              {menu.isBold ? <strong>{menu.label}</strong> : menu.label}
+              {menu.label}
             </button>
           </div>
         ))}
@@ -117,8 +162,21 @@ export function MenuBar({ mode, onOpenPage }: MenuBarProps) {
           </div>
         )}
       </nav>
-      <div className="menu-bar__clock" aria-live="polite">
-        {time}
+      <div className="menu-bar__controls">
+        <div className="menu-bar__system-icons" aria-hidden="true">
+          <img src={figmaIcon} alt="" />
+          <img src={emailIcon} alt="" />
+          <button type="button" className="menu-bar__ai" onClick={onToggleMode} aria-label="Toggle OS mode">
+            <img src={aiIcon} alt="" />
+          </button>
+          <img src={batteryIcon} alt="" />
+          <img src={wifiIcon} alt="" />
+          <img src={searchIcon} alt="" />
+        </div>
+        <span className="menu-bar__date">{date}</span>
+        <div className="menu-bar__clock" aria-live="polite">
+          {time}
+        </div>
       </div>
     </header>
   );

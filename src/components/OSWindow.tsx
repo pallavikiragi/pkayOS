@@ -9,6 +9,8 @@ interface OSWindowProps {
   status?: string;
   variant?: 'default' | 'folder' | 'project';
   onClose: () => void;
+  onMinimize: () => void;
+  onToggleMaximize: () => void;
   onFocus: () => void;
   onDragStart: (clientX: number, clientY: number) => void;
   onResizeStart: (edge: ResizeHandle, clientX: number, clientY: number) => void;
@@ -20,6 +22,8 @@ export function OSWindow({
   status,
   variant = 'default',
   onClose,
+  onMinimize,
+  onToggleMaximize,
   onFocus,
   onDragStart,
   onResizeStart,
@@ -28,13 +32,14 @@ export function OSWindow({
 
   return (
     <section
-      className={`os-window ${isProject ? 'os-window--project' : ''}`}
+      className={`os-window os-window--${variant}${win.isMaximized ? ' os-window--maximized' : ''}`}
       style={{
         left: win.x,
         top: win.y,
         width: win.width,
         height: win.height,
         zIndex: win.zIndex,
+        display: win.isMinimized ? 'none' : undefined,
       }}
       onMouseDown={onFocus}
       role="dialog"
@@ -52,7 +57,7 @@ export function OSWindow({
             onClose();
           }}
           aria-label="Close window"
-        />
+        >×</button>
         <div
           className="os-window__titlebar-drag"
           onPointerDown={(e) => {
@@ -72,6 +77,32 @@ export function OSWindow({
           }}
         >
           <span className="os-window__title">{win.title}</span>
+        </div>
+        <div className="os-window__controls">
+          <button
+            type="button"
+            className="os-window__control os-window__minimize"
+            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMinimize();
+            }}
+            aria-label="Minimize window"
+            title="Minimize"
+          />
+          <button
+            type="button"
+            className={`os-window__control os-window__maximize${win.isMaximized ? ' os-window__maximize--active' : ''}`}
+            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleMaximize();
+            }}
+            aria-label={win.isMaximized ? 'Restore window' : 'Maximize window'}
+            title={win.isMaximized ? 'Restore' : 'Maximize'}
+          />
         </div>
       </div>
       <div

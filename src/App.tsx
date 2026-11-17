@@ -1,12 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AboutWindow } from './components/AboutWindow';
-import { BackgroundEffectsPanel } from './components/BackgroundEffectsPanel';
-import { BackgroundSlideshow } from './components/BackgroundSlideshow';
-import { DEFAULT_BACKGROUND_EFFECTS } from './types/background';
-import type { BackgroundEffects } from './types/background';
-import { DesktopIcon } from './components/DesktopIcon';
-import { DesktopWidgets } from './components/DesktopWidgets';
+import { BackgroundReveal } from './components/BackgroundReveal';
 import { FolderWindow } from './components/FolderWindow';
+import { HomeScreen } from './components/HomeScreen';
 import { MenuBar } from './components/MenuBar';
 import { OSWindow } from './components/OSWindow';
 import { ProjectWindow } from './components/ProjectWindow';
@@ -22,22 +18,22 @@ import { JourneyPage } from './components/JourneyPage';
 import { LogsPage } from './components/LogsPage';
 import { InspirationsPage } from './components/InspirationsPage';
 import { WritingsPage } from './components/WritingsPage';
-import { DESIGN_FOLDERS, SOUND_FOLDERS } from './data/content';
+import { ProfilePage } from './components/ProfilePage';
 import { useWindowManager } from './hooks/useWindowManager';
 import type { FolderId, OSMode } from './types';
 
 function App() {
   const [mode, setMode] = useState<OSMode>('design');
-  const [selectedFolder, setSelectedFolder] = useState<FolderId | null>(null);
-  const [bgEffects, setBgEffects] = useState<BackgroundEffects>(
-    DEFAULT_BACKGROUND_EFFECTS,
-  );
+  const [activePage, setActivePage] = useState<'home' | 'profile'>('home');
   const {
     windows,
     openFolder,
     openProject,
     openPage,
     closeWindow,
+    minimizeWindow,
+    restoreWindow,
+    toggleMaximize,
     focusWindow,
     startDrag,
     startResize,
@@ -66,107 +62,142 @@ function App() {
         toggleMode();
         return;
       }
-      setSelectedFolder(folderId);
       openFolder(folderId);
     },
     [openFolder, toggleMode],
   );
 
-  const handleDesktopClick = useCallback(() => {
-    setSelectedFolder(null);
-  }, []);
-
-  const currentFolders = mode === 'design' ? DESIGN_FOLDERS : SOUND_FOLDERS;
+  const handleOpenPage = useCallback(
+    (
+      kind: Parameters<typeof openPage>[0],
+      archiveType?: Parameters<typeof openPage>[1],
+    ) => {
+      setActivePage('home');
+      openPage(kind, archiveType);
+    },
+    [openPage],
+  );
 
   return (
-    <div className={`pkay-os ${mode === 'sound' ? 'pkay-os--sound' : ''}`} onClick={handleDesktopClick}>
-      <BackgroundSlideshow effects={bgEffects} />
-      {/* <BackgroundEffectsPanel effects={bgEffects} onChange={setBgEffects} /> */}
-      <MenuBar mode={mode} onOpenPage={openPage} />
+    <div className={`pkay-os ${mode === 'sound' ? 'pkay-os--sound' : ''}`}>
+      <BackgroundReveal />
+      <MenuBar
+        mode={mode}
+        activePage={activePage}
+        onOpenPage={handleOpenPage}
+        onToggleMode={toggleMode}
+        onShowHome={() => setActivePage('home')}
+        onShowProfile={() => setActivePage('profile')}
+      />
 
       <main className="desktop">
-        <aside
-          className="desktop__icons"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {currentFolders.map((folder) => {
-            if (!folder.label) {
-              return <div key={folder.id} className="desktop-icon" style={{ visibility: 'hidden', pointerEvents: 'none' }} />;
-            }
-            return (
-              <DesktopIcon
-                key={folder.id}
-                folder={folder}
-                selected={selectedFolder === folder.id}
-                onOpen={() => handleOpenFolder(folder.id)}
-              />
-            );
-          })}
-        </aside>
+        {activePage === 'home' ? (
+          <>
+            <HomeScreen
+              mode={mode}
+              onOpenFolder={handleOpenFolder}
+              onOpenProject={openProject}
+            />
 
-        <DesktopWidgets mode={mode} onOpenProject={openProject} />
+            <div
+              className="desktop__workspace"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {windows.map((win) => {
+                const isFolder = win.kind === 'folder' && win.folderId;
+                const isProject = win.kind === 'project' && win.projectId;
+                const variant =
+                  win.kind === 'project'
+                    ? 'project'
+                    : win.kind === 'folder'
+                      ? 'folder'
+                      : 'default';
 
-        <div className="desktop__workspace" onClick={(e) => e.stopPropagation()}>
-          {windows.map((win) => {
-            const isFolder = win.kind === 'folder' && win.folderId;
-            const isProject = win.kind === 'project' && win.projectId;
-            const variant =
-              win.kind === 'project'
-                ? 'project'
-                : win.kind === 'folder'
-                  ? 'folder'
-                  : 'default';
+                return (
+                  <OSWindow
+                    key={win.id}
+                    window={win}
+                    variant={variant}
+                    status={
+                      win.kind === 'folder'
+                        ? `ITEMS: ${win.folderId ? 'FILTERABLE' : '0'} | MODE: READ`
+                        : win.kind === 'project'
+                          ? 'CHARS: CASE STUDY | LINE: — | COL: 1'
+                          : 'SYS: READY'
+                    }
+                    onClose={() => closeWindow(win.id)}
+                    onMinimize={() => minimizeWindow(win.id)}
+                    onToggleMaximize={() => toggleMaximize(win.id)}
+                    onFocus={() => focusWindow(win.id)}
+                    onDragStart={(x, y) => startDrag(win.id, x, y)}
+                    onResizeStart={(edge, x, y) =>
+                      startResize(win.id, edge, x, y)
+                    }
+                  >
+                    {isFolder && (
+                      <FolderWindow
+                        folderId={win.folderId!}
+                        onOpenProject={openProject}
+                      />
+                    )}
+                    {isProject && (
+                      <ProjectWindow projectId={win.projectId!} />
+                    )}
+                    {win.kind === 'about' && <AboutWindow />}
+                    {win.kind === 'trash' && <TrashWindow />}
+                    {win.kind === 'archive' && (
+                      <ArchivePage
+                        type={win.archiveType!}
+                        onOpenProject={openProject}
+                      />
+                    )}
+                    {win.kind === 'experiments' && <ExperimentsPage />}
+                    {win.kind === 'collaborations' && (
+                      <CollaborationsPage onOpenProject={openProject} />
+                    )}
+                    {win.kind === 'socials' && <SocialsPage />}
+                    {win.kind === 'contact' && <ContactPage />}
+                    {win.kind === 'clients' && (
+                      <ClientsPage onOpenProject={openProject} />
+                    )}
+                    {win.kind === 'resume' && <ResumePage />}
+                    {win.kind === 'journey' && <JourneyPage />}
+                    {win.kind === 'logs' && <LogsPage />}
+                    {win.kind === 'inspirations' && <InspirationsPage />}
+                    {win.kind === 'writings' && <WritingsPage />}
+                  </OSWindow>
+                );
+              })}
+            </div>
 
-            return (
-              <OSWindow
-                key={win.id}
-                window={win}
-                variant={variant}
-                status={
-                  win.kind === 'folder'
-                    ? `ITEMS: ${win.folderId ? 'FILTERABLE' : '0'} | MODE: READ`
-                    : win.kind === 'project'
-                      ? 'CHARS: CASE STUDY | LINE: — | COL: 1'
-                      : 'SYS: READY'
-                }
-                onClose={() => closeWindow(win.id)}
-                onFocus={() => focusWindow(win.id)}
-                onDragStart={(x, y) => startDrag(win.id, x, y)}
-                onResizeStart={(edge, x, y) =>
-                  startResize(win.id, edge, x, y)
-                }
-              >
-                {isFolder && (
-                  <FolderWindow
-                    folderId={win.folderId!}
-                    onOpenProject={openProject}
-                  />
-                )}
-                {isProject && (
-                  <ProjectWindow projectId={win.projectId!} />
-                )}
-                {win.kind === 'about' && <AboutWindow />}
-                {win.kind === 'trash' && <TrashWindow />}
-                {win.kind === 'archive' && <ArchivePage type={win.archiveType!} onOpenProject={openProject} />}
-                {win.kind === 'experiments' && <ExperimentsPage />}
-                {win.kind === 'collaborations' && <CollaborationsPage onOpenProject={openProject} />}
-                {win.kind === 'socials' && <SocialsPage />}
-                {win.kind === 'contact' && <ContactPage />}
-                {win.kind === 'clients' && <ClientsPage onOpenProject={openProject} />}
-                {win.kind === 'resume' && <ResumePage />}
-                {win.kind === 'journey' && <JourneyPage />}
-                {win.kind === 'logs' && <LogsPage />}
-                {win.kind === 'inspirations' && <InspirationsPage />}
-                {win.kind === 'writings' && <WritingsPage />}
-              </OSWindow>
-            );
-          })}
-        </div>
-
-        <footer className="desktop__footer">
-          <span>{mode === 'design' ? 'INTERACTION · SYSTEMS · MEDIA · ENTERPRISE' : 'ALBUMS · SINGLES · PRESS · MIXES'}</span>
-          <span className="desktop__footer-id">PALLAVI OS — {mode === 'design' ? 'DESIGN WORKSTATION' : 'SOUND STATION'}</span>
-        </footer>
+            <footer className="desktop__footer">
+              <span>
+                {mode === 'design'
+                  ? 'INTERACTION · SYSTEMS · MEDIA · ENTERPRISE'
+                  : 'ALBUMS · SINGLES · PRESS · MIXES'}
+              </span>
+              <div className="desktop__minimized-windows" aria-label="Minimized windows">
+                {windows.filter((win) => win.isMinimized).map((win) => (
+                  <button
+                    key={win.id}
+                    type="button"
+                    onClick={() => restoreWindow(win.id)}
+                    aria-label={`Restore ${win.title}`}
+                    title={`Restore ${win.title}`}
+                  >
+                    {win.title}
+                  </button>
+                ))}
+              </div>
+              <span className="desktop__footer-id">
+                PALLAVI OS —{' '}
+                {mode === 'design' ? 'DESIGN WORKSTATION' : 'SOUND STATION'}
+              </span>
+            </footer>
+          </>
+        ) : (
+          <ProfilePage onClose={() => setActivePage('home')} />
+        )}
       </main>
     </div>
   );

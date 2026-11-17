@@ -9,17 +9,38 @@ interface ProjectTileProps {
 
 export function ProjectTile({
   project,
-  excerptLength = 200,
+  excerptLength = 160,
   onOpen,
 }: ProjectTileProps) {
   return (
-    <li className="project-card">
+    <li
+      className="project-card"
+      onClick={() => onOpen(project.id)}
+      tabIndex={0}
+      role="button"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onOpen(project.id);
+        }
+      }}
+    >
       <div className="project-card__tile">
         <div
           className="project-card__visual"
           style={{ backgroundImage: `url(${project.image})` }}
         >
           <div className="project-card__scrim" aria-hidden />
+          <div className="project-card__meta-badges">
+            <span className="project-card__badge project-card__badge--year">
+              {project.year}
+            </span>
+            {project.tags[0] && (
+              <span className="project-card__badge project-card__badge--tag">
+                {project.tags[0]}
+              </span>
+            )}
+          </div>
           <h3 className="project-card__title">{toTitleCase(project.title)}</h3>
           <p className="project-card__excerpt">
             {truncateText(project.summary, excerptLength)}
@@ -27,7 +48,10 @@ export function ProjectTile({
           <button
             type="button"
             className="project-card__open"
-            onClick={() => onOpen(project.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpen(project.id);
+            }}
           >
             OPEN →
           </button>

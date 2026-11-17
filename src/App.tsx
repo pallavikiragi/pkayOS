@@ -25,6 +25,7 @@ import type { FolderId, OSMode } from './types';
 function App() {
   const [mode, setMode] = useState<OSMode>('design');
   const [activePage, setActivePage] = useState<'home' | 'profile'>('home');
+  const [profileMinimized, setProfileMinimized] = useState(false);
   const {
     windows,
     openFolder,
@@ -73,6 +74,7 @@ function App() {
       archiveType?: Parameters<typeof openPage>[1],
     ) => {
       setActivePage('home');
+      setProfileMinimized(false);
       openPage(kind, archiveType);
     },
     [openPage],
@@ -87,7 +89,10 @@ function App() {
         onOpenPage={handleOpenPage}
         onToggleMode={toggleMode}
         onShowHome={() => setActivePage('home')}
-        onShowProfile={() => setActivePage('profile')}
+        onShowProfile={() => {
+          setProfileMinimized(false);
+          setActivePage('profile');
+        }}
       />
 
       <main className="desktop">
@@ -168,6 +173,34 @@ function App() {
                   </OSWindow>
                 );
               })}
+              {(profileMinimized || windows.some((win) => win.isMinimized)) && (
+                <div className="desktop__minimized-windows" aria-label="Minimized windows">
+                  {profileMinimized && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProfileMinimized(false);
+                        setActivePage('profile');
+                      }}
+                      aria-label="Restore ABOUT.TXT"
+                      title="Restore ABOUT.TXT"
+                    >
+                      ABOUT.TXT
+                    </button>
+                  )}
+                  {windows.filter((win) => win.isMinimized).map((win) => (
+                    <button
+                      key={win.id}
+                      type="button"
+                      onClick={() => restoreWindow(win.id)}
+                      aria-label={`Restore ${win.title}`}
+                      title={`Restore ${win.title}`}
+                    >
+                      {win.title}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <footer className="desktop__footer">
@@ -176,19 +209,6 @@ function App() {
                   ? 'INTERACTION · SYSTEMS · MEDIA · ENTERPRISE'
                   : 'ALBUMS · SINGLES · PRESS · MIXES'}
               </span>
-              <div className="desktop__minimized-windows" aria-label="Minimized windows">
-                {windows.filter((win) => win.isMinimized).map((win) => (
-                  <button
-                    key={win.id}
-                    type="button"
-                    onClick={() => restoreWindow(win.id)}
-                    aria-label={`Restore ${win.title}`}
-                    title={`Restore ${win.title}`}
-                  >
-                    {win.title}
-                  </button>
-                ))}
-              </div>
               <span className="desktop__footer-id">
                 PALLAVI OS —{' '}
                 {mode === 'design' ? 'DESIGN WORKSTATION' : 'SOUND STATION'}
@@ -196,7 +216,16 @@ function App() {
             </footer>
           </>
         ) : (
-          <ProfilePage onClose={() => setActivePage('home')} />
+          <ProfilePage
+            onClose={() => {
+              setProfileMinimized(false);
+              setActivePage('home');
+            }}
+            onMinimize={() => {
+              setProfileMinimized(true);
+              setActivePage('home');
+            }}
+          />
         )}
       </main>
     </div>

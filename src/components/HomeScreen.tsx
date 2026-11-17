@@ -117,6 +117,8 @@ type ActiveCallout = {
   id: (typeof CALLOUT_ANCHORS)[number]['id'];
   centerX: number;
   centerY: number;
+  localX: number;
+  localY: number;
 };
 
 function updateActiveCallout(
@@ -127,12 +129,27 @@ function updateActiveCallout(
   if (event.pointerType !== 'mouse') return;
 
   const layer = event.currentTarget.parentElement?.getBoundingClientRect();
-  if (!layer || layer.width === 0 || layer.height === 0) return;
+  const zone = event.currentTarget.getBoundingClientRect();
+  const badge = event.currentTarget.querySelector<HTMLElement>('.home__callout');
+  if (!layer || !badge || layer.width === 0 || layer.height === 0) return;
+
+  const halfWidth = badge.offsetWidth / 2 + 4;
+  const halfHeight = badge.offsetHeight / 2 + 4;
+  const localX = Math.max(
+    halfWidth,
+    Math.min(zone.width - halfWidth, event.clientX - zone.left),
+  );
+  const localY = Math.max(
+    halfHeight,
+    Math.min(zone.height - halfHeight, event.clientY - zone.top),
+  );
 
   setActiveCallout({
     id,
-    centerX: ((event.clientX - layer.left) / layer.width) * 100,
-    centerY: ((event.clientY - layer.top) / layer.height) * 100,
+    centerX: ((zone.left + localX - layer.left) / layer.width) * 100,
+    centerY: ((zone.top + localY - layer.top) / layer.height) * 100,
+    localX,
+    localY,
   });
 }
 
@@ -192,17 +209,18 @@ export function HomeScreen({
                   x2={(active ? activeCallout.centerX : anchor.endX) * 10}
                   y2={(active ? activeCallout.centerY : anchor.endY) * 10}
                 />
-                <circle
-                  className="home__callout-anchor-point"
-                  cx={anchor.x * 10}
-                  cy={anchor.y * 10}
-                  r={active ? 8 : 6}
-                  onClick={() => onOpenFolder(anchor.folderId)}
-                />
               </g>
             );
           })}
         </svg>
+        {CALLOUT_ANCHORS.map((anchor) => (
+          <span
+            key={`${anchor.id}-anchor`}
+            className="home__callout-anchor-point"
+            style={{ left: `${anchor.x}%`, top: `${anchor.y}%` }}
+            aria-hidden="true"
+          />
+        ))}
         {CALLOUT_ANCHORS.map((anchor) => (
           <div
             key={anchor.id}
@@ -215,39 +233,44 @@ export function HomeScreen({
             }
             onPointerLeave={() => setActiveCallout(null)}
             onClick={() => onOpenFolder(anchor.folderId)}
-            role="button"
-            tabIndex={-1}
-            aria-label={`Open ${anchor.label} projects`}
-          />
-        ))}
-        {CALLOUT_ANCHORS.map((anchor) => (
-          <button
-            key={anchor.id}
-            type="button"
-            className={`home__callout home__callout--${anchor.id} ${
-              activeCallout?.id === anchor.id ? 'home__callout--active' : ''
-            }`}
-            style={
-              activeCallout?.id === anchor.id
-                ? {
-                    left: `${activeCallout.centerX}%`,
-                    top: `${activeCallout.centerY}%`,
-                  }
-                : undefined
-            }
-            onClick={() => onOpenFolder(anchor.folderId)}
             onFocus={() =>
               setActiveCallout({
                 id: anchor.id,
                 centerX: anchor.endX,
                 centerY: anchor.endY,
+                localX: -1,
+                localY: -1,
               })
             }
             onBlur={() => setActiveCallout(null)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                onOpenFolder(anchor.folderId);
+              }
+            }}
+            role="button"
+            tabIndex={0}
             aria-label={`Open ${anchor.label} projects`}
           >
-            {anchor.label}
-          </button>
+            <span
+              className={`home__callout home__callout--${anchor.id} ${
+                activeCallout?.id === anchor.id ? 'home__callout--active' : ''
+              }`}
+              style={
+                activeCallout?.id === anchor.id &&
+                activeCallout.localX >= 0
+                  ? {
+                      left: `${activeCallout.localX}px`,
+                      top: `${activeCallout.localY}px`,
+                    }
+                  : undefined
+              }
+              aria-hidden="true"
+            >
+              {anchor.label}
+            </span>
+          </div>
         ))}
       </div>
 

@@ -546,12 +546,20 @@ button {
 }
 
 .desktop__minimized-windows {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 1000;
   display: flex;
-  flex: 1;
-  justify-content: center;
+  max-width: calc(100% - 24px);
   gap: 6px;
   min-width: 0;
   overflow: hidden;
+  padding: 5px;
+  border: 1px solid var(--ink);
+  background: var(--window-bg);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+  pointer-events: auto;
 }
 
 .desktop__minimized-windows button {
@@ -3184,6 +3192,7 @@ button {
   width: 100%;
   height: 100%;
   overflow: visible;
+  pointer-events: none;
 }
 
 .home__callout-lines line {
@@ -3192,50 +3201,59 @@ button {
   vector-effect: non-scaling-stroke;
 }
 
-.home__callout-lines circle {
-  fill: #446ae5;
-  transition:
-    r 200ms ease,
-    fill 200ms ease;
-  pointer-events: auto;
-  cursor: pointer;
-}
-
-.home__callout-lines circle:hover {
-  fill: #171717;
+.home__callout-anchor-point {
+  position: absolute;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: #446ae5;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 
 .home__callout-zone {
   position: absolute;
   z-index: 2;
+  display: block;
+  border: 0;
+  padding: 0;
+  background: transparent;
   pointer-events: auto;
   cursor: pointer;
 }
 
+.home__callout-zone:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 3px;
+}
+
 .home__callout-zone--digital {
-  top: 12%;
-  left: 53%;
-  width: min(29%, calc(47% - 330px));
-  height: 30%;
+  top: 10%;
+  left: 46%;
+  width: 24%;
+  height: 32%;
 }
 
 .home__callout-zone--experiments {
-  top: 40%;
-  left: 22%;
-  width: 34%;
-  height: 36%;
+  top: 43%;
+  left: 23%;
+  width: 24%;
+  height: 35%;
 }
 
 .home__callout-zone--systems {
-  top: 54%;
-  left: 57%;
-  width: min(22%, calc(43% - 330px));
-  height: 38%;
+  top: 51%;
+  left: 55%;
+  width: 26%;
+  height: 35%;
 }
 
 .home__callout {
   position: absolute;
-  z-index: 3;
+  z-index: 1;
+  display: block;
   padding: 5px 9px;
   border: 1px solid #446ae5;
   background: rgba(245, 246, 250, 0.92);
@@ -3245,19 +3263,16 @@ button {
   font-weight: 700;
   letter-spacing: 0.05em;
   white-space: nowrap;
-  pointer-events: auto;
-  cursor: pointer;
+  pointer-events: none;
   user-select: none;
   box-shadow: 2px 2px 0px rgba(68, 106, 229, 0.25);
   transition:
     background-color 160ms ease,
     color 160ms ease,
     border-color 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
+    box-shadow 160ms ease;
 }
 
-.home__callout:hover,
 .home__callout.home__callout--active {
   z-index: 4;
   border-color: #446ae5;
@@ -3266,34 +3281,22 @@ button {
   box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
 }
 
-.home__callout:focus-visible {
-  outline: 2px solid #111;
-  outline-offset: 2px;
-}
-
 .home__callout--digital {
-  top: 28%;
-  left: 66%;
+  top: 56.25%;
+  left: 83.333%;
   transform: translate(-50%, -50%);
 }
 
 .home__callout--experiments {
-  top: 58%;
-  left: 42%;
+  top: 42.857%;
+  left: 79.167%;
   transform: translate(-50%, -50%);
 }
 
 .home__callout--systems {
-  top: 71%;
-  left: 75%;
+  top: 57.143%;
+  left: 76.923%;
   transform: translate(-50%, -50%);
-}
-
-.home__callout.home__callout--active {
-  z-index: 3;
-  border-color: #446ae5;
-  background: #446ae5;
-  color: #fff;
 }
 
 .home__release {

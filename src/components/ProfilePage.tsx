@@ -3,9 +3,10 @@ import { AboutContent } from './AboutContent';
 
 interface ProfilePageProps {
   onClose: () => void;
+  onMinimize: () => void;
 }
 
-export function ProfilePage({ onClose }: ProfilePageProps) {
+export function ProfilePage({ onClose, onMinimize }: ProfilePageProps) {
   const [isMaximized, setIsMaximized] = useState(true);
 
   return (
@@ -28,7 +29,7 @@ export function ProfilePage({ onClose }: ProfilePageProps) {
             <button
               type="button"
               className="os-window__control os-window__minimize"
-              onClick={onClose}
+              onClick={onMinimize}
               aria-label="Minimize window"
               title="Minimize"
             />

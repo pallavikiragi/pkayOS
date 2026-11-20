@@ -3145,6 +3145,14 @@ button {
   letter-spacing: -0.055em;
 }
 
+.pkay-os--sound .desktop__home {
+  color: #fff;
+}
+
+.pkay-os--sound .home__intro h1 {
+  color: #fff;
+}
+
 .home__subhead {
   margin: 12px 0 0 4px;
   font-family: 'Space Grotesk', system-ui, sans-serif;
@@ -3203,69 +3211,65 @@ button {
 
 .home__callout-anchor-point {
   position: absolute;
-  z-index: 1;
-  width: 12px;
-  height: 12px;
-  border: 0;
+  z-index: 2;
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 2px solid #ffffff;
   border-radius: 50%;
   background: #446ae5;
   transform: translate(-50%, -50%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   pointer-events: none;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
-.home__callout-zone {
+.home__callout-anchor-point--active {
+  transform: translate(-50%, -50%) scale(1.35);
+  background: #171717;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.home__callout-space {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   display: block;
   border: 0;
   padding: 0;
   background: transparent;
   pointer-events: auto;
   cursor: pointer;
+  outline: none;
 }
 
-.home__callout-zone:focus-visible {
-  outline: 2px solid #111;
-  outline-offset: 3px;
-}
-
-.home__callout-zone--digital {
-  top: 10%;
-  left: 46%;
-  width: 24%;
-  height: 32%;
-}
-
-.home__callout-zone--experiments {
-  top: 43%;
-  left: 23%;
-  width: 24%;
-  height: 35%;
-}
-
-.home__callout-zone--systems {
-  top: 51%;
-  left: 55%;
-  width: 26%;
-  height: 35%;
+.home__callout-space:focus-visible {
+  outline: 2px dashed rgba(68, 106, 229, 0.4);
+  outline-offset: 2px;
 }
 
 .home__callout {
   position: absolute;
-  z-index: 1;
-  display: block;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 5px 9px;
   border: 1px solid #446ae5;
-  background: rgba(245, 246, 250, 0.92);
+  background: rgba(245, 246, 250, 0.95);
   color: #446ae5;
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.05em;
   white-space: nowrap;
+  transform: translate(-50%, -50%);
   pointer-events: none;
   user-select: none;
   box-shadow: 2px 2px 0px rgba(68, 106, 229, 0.25);
+  will-change: left, top;
   transition:
     background-color 160ms ease,
     color 160ms ease,
@@ -3274,29 +3278,10 @@ button {
 }
 
 .home__callout.home__callout--active {
-  z-index: 4;
   border-color: #446ae5;
   background: #446ae5;
   color: #fff;
   box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
-}
-
-.home__callout--digital {
-  top: 56.25%;
-  left: 83.333%;
-  transform: translate(-50%, -50%);
-}
-
-.home__callout--experiments {
-  top: 42.857%;
-  left: 79.167%;
-  transform: translate(-50%, -50%);
-}
-
-.home__callout--systems {
-  top: 57.143%;
-  left: 76.923%;
-  transform: translate(-50%, -50%);
 }
 
 .home__release {
@@ -3703,6 +3688,30 @@ button {
   background: #304fc0;
   outline: 2px solid #171717;
   outline-offset: 2px;
+}
+
+.pkay-os--sound .home__release-content,
+.pkay-os--sound .home__release-content * {
+  color: #111;
+}
+
+.pkay-os--sound .home__highlight-copy,
+.pkay-os--sound .home__highlight-copy h3,
+.pkay-os--sound .home__highlight-details,
+.pkay-os--sound .home__highlight-category {
+  color: #111;
+}
+
+.pkay-os--sound .home__highlight-image {
+  display: grid;
+  place-items: center;
+  background: #171717;
+}
+
+.pkay-os--sound .home__highlight-image img {
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
 }
 
 @media (max-width: 1100px) {

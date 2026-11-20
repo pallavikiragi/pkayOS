@@ -16,6 +16,44 @@ interface Ripple {
   speed: number;
   maxRadius: number;
   strength: number;
+  waveWidth: number;
+}
+
+const ASCII_DENSE = [
+  '@', '#', '$', '%', '&', '8', 'B', 'W', 'M', '0', 'Q', 'X', 'Z',
+];
+const ASCII_MID = [
+  '*', '+', '=', '×', '÷', '?', '!', '7', '1', 'o', 'x', '<', '>', '/', '\\', '|', '[', ']', '{', '}',
+];
+const ASCII_LIGHT = [
+  ':', ';', '-', '~', '^', '·', '•', '°', '.', '\'', '`',
+];
+
+const FONT_SMALL = '600 8px "IBM Plex Mono", "Courier New", monospace';
+const FONT_MEDIUM = '600 9.5px "IBM Plex Mono", "Courier New", monospace';
+const FONT_LARGE = '600 11.5px "IBM Plex Mono", "Courier New", monospace';
+
+function getAsciiGlyph(
+  base: number,
+  phase: number,
+  time: number,
+  index: number,
+): string {
+  // 12 updates per second with staggered phase offsets per dot
+  const tick = Math.floor(time * 12 + phase * 3 + index * 0.41);
+  const hash = Math.imul(tick ^ (index * 2654435761), 0x45d9f3b);
+  const u = ((hash >>> 0) % 1000) / 1000;
+
+  if (base >= 3.2) {
+    const i = Math.floor(u * ASCII_DENSE.length);
+    return ASCII_DENSE[i];
+  }
+  if (base < 1.6) {
+    const i = Math.floor(u * ASCII_LIGHT.length);
+    return ASCII_LIGHT[i];
+  }
+  const i = Math.floor(u * ASCII_MID.length);
+  return ASCII_MID[i];
 }
 
 export function BackgroundReveal() {
@@ -48,6 +86,8 @@ export function BackgroundReveal() {
     let dots: {
       originX: number;
       originY: number;
+      gridX: number;
+      gridY: number;
       base: number;
       pulsePhase: number;
       pulseSpeed: number;
@@ -60,19 +100,29 @@ export function BackgroundReveal() {
     let pointer: { x: number; y: number } | null = null;
     let ripples: Ripple[] = [];
 
-    const pointerRadius = 18;
-    const pointerFeather = 105;
+    const asciiQueue: {
+      char: string;
+      x: number;
+      y: number;
+      alpha: number;
+      font: string;
+    }[] = [];
+
+    const sphereRadius = 130;
+    const sphereFeather = 40;
     const minimumDotScale = 0.08;
 
     const draw = (now: number) => {
       context.clearRect(0, 0, width, height);
       context.fillStyle = '#111';
       const time = (now - start) / 1000;
+      const animTime = reducedMotion.matches ? 0 : time;
+      asciiQueue.length = 0;
 
       // Clean up finished ripples
       ripples = ripples.filter((r) => {
         const age = (now - r.born) / 1000;
-        return age * r.speed <= r.maxRadius;
+        return age * r.speed <= r.maxRadius + r.waveWidth;
       });
 
       context.beginPath();
@@ -83,71 +133,122 @@ export function BackgroundReveal() {
         // 1. Dynamic in-place breathing (dots smoothly increase and decrease size)
         const pulse1 = Math.sin(time * dot.pulseSpeed + dot.pulsePhase);
         const pulse2 = Math.cos(time * dot.secondarySpeed + dot.secondaryPhase);
-        const pulseScale = 1.0 + 0.32 * pulse1 + 0.16 * pulse2;
+        const pulseScale = 1.0 + 0.35 * pulse1 + 0.16 * pulse2;
 
-        // 2. Feathered white circle on mouse hover (dots decrease to minimum size within radius)
-        let cursorInfluence = 0;
+        // 2. Cursor hover sphere: converts dots into ASCII characters
+        let asciiInfluence = 0;
         if (pointer) {
           const distanceToPointer = Math.hypot(
             dot.originX - pointer.x,
             dot.originY - pointer.y,
           );
-          const featherProgress = Math.min(
-            1,
-            Math.max(
-              0,
-              (distanceToPointer - pointerRadius) / pointerFeather,
-            ),
-          );
-          const easedFeather =
-            featherProgress * featherProgress * (3 - 2 * featherProgress);
-          cursorInfluence = 1 - easedFeather;
+          if (distanceToPointer < sphereRadius) {
+            asciiInfluence = Math.min(
+              1,
+              Math.max(0, (sphereRadius - distanceToPointer) / sphereFeather),
+            );
+          }
         }
 
-        // Dots shrink smoothly toward minimum size inside the cursor radius
-        let scale =
-          pulseScale + (minimumDotScale - pulseScale) * cursorInfluence;
+        let scale = pulseScale;
 
-        // Base position is strictly static
-        let posX = dot.originX;
-        let posY = dot.originY;
+        // Base position remains static
+        const posX = dot.originX;
+        const posY = dot.originY;
 
-        // 3. Subtle tactile click shockwave motion
+        // 3. Subtle click reactivity within a small radius: gentle size dip + subtle traveling wave
         for (let r = 0; r < ripples.length; r++) {
           const ripple = ripples[r];
           const age = (now - ripple.born) / 1000;
           const currentRadius = age * ripple.speed;
           const dx = dot.originX - ripple.x;
           const dy = dot.originY - ripple.y;
-          const rDist = Math.hypot(dx, dy);
-          const rDiff = rDist - currentRadius;
-          const waveBand = 65;
+          const dist = Math.hypot(dx, dy);
 
-          if (Math.abs(rDiff) < waveBand) {
-            const wavePhase = (rDiff / waveBand) * (Math.PI / 2);
-            const waveMag = Math.cos(wavePhase);
+          // Subtle immediate size dip around click location (wider 85px radius)
+          const impactDuration = 0.38;
+          if (age < impactDuration) {
+            const impactRadius = 85;
+            if (dist < impactRadius) {
+              const distFactor = 1 - dist / impactRadius;
+              const timeFactor = Math.sin(
+                (1 - age / impactDuration) * (Math.PI / 2),
+              );
+              // Very gentle, non-stark size decrease upon click
+              scale -= distFactor * timeFactor * 0.22;
+            }
+          }
+
+          // Subtle single wave confined within wider radius
+          const delta = dist - currentRadius;
+          const halfBand = ripple.waveWidth;
+
+          if (Math.abs(delta) < halfBand && currentRadius <= ripple.maxRadius) {
+            const norm = delta / halfBand;
+            const envelope = Math.cos(norm * (Math.PI / 2)) ** 2;
+            const waveCycle = -Math.sin(norm * Math.PI);
             const life = Math.max(0, 1 - currentRadius / ripple.maxRadius);
-            const effect = waveMag * life * ripple.strength;
 
-            // Subtle, gentle outward displacement (soft max ~5.5px)
-            const rAngle = Math.atan2(dy, dx);
-            const push = effect * 6.5;
-            posX += Math.cos(rAngle) * push;
-            posY += Math.sin(rAngle) * push;
-
-            // Subtle temporary scale modulation
-            scale += effect * 0.22;
+            // Gentle size modulation: subtly decreases then increases dot size
+            scale += waveCycle * envelope * life * ripple.strength * 0.40;
           }
         }
 
-        const radius = Math.max(0, dot.base * scale);
-        if (radius < 0.18) continue;
+        // Sparser ASCII sampling: place glyphs every 3rd grid step so characters have generous breathing room
+        const isAsciiCell = dot.gridX % 3 === 0 && dot.gridY % 3 === 0;
 
-        context.moveTo(posX + radius, posY);
-        context.arc(posX, posY, radius, 0, Math.PI * 2);
+        // Inside hover sphere: convert spaced dot into randomized animating ASCII character
+        if (isAsciiCell && asciiInfluence > 0) {
+          const char = getAsciiGlyph(dot.base, dot.pulsePhase, animTime, i);
+          const font =
+            dot.base >= 3.2
+              ? FONT_LARGE
+              : dot.base < 1.6
+                ? FONT_SMALL
+                : FONT_MEDIUM;
+          asciiQueue.push({
+            char,
+            x: posX,
+            y: posY,
+            alpha: asciiInfluence,
+            font,
+          });
+        }
+
+        // Draw regular circle dot outside or transitioning into hover sphere
+        if (asciiInfluence < 0.95) {
+          const circleScale = scale * (1 - asciiInfluence);
+          const radius = Math.max(
+            0,
+            dot.base * Math.max(minimumDotScale, Math.min(1.45, circleScale)),
+          );
+          if (radius >= 0.25) {
+            context.moveTo(posX + radius, posY);
+            context.arc(posX, posY, radius, 0, Math.PI * 2);
+          }
+        }
       }
 
       context.fill();
+
+      // Render animated ASCII characters inside cursor hover sphere
+      if (asciiQueue.length > 0) {
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        let activeFont = '';
+
+        for (let j = 0; j < asciiQueue.length; j++) {
+          const item = asciiQueue[j];
+          if (activeFont !== item.font) {
+            context.font = item.font;
+            activeFont = item.font;
+          }
+          context.globalAlpha = item.alpha;
+          context.fillText(item.char, item.x, item.y);
+        }
+
+        context.globalAlpha = 1;
+      }
 
       if (!reducedMotion.matches && !document.hidden) {
         frameId = requestAnimationFrame(draw);
@@ -208,14 +309,19 @@ export function BackgroundReveal() {
           // Retain dots with graphic density
           if (base < 0.25) continue;
 
+          const gridX = Math.round(x / spacing);
+          const gridY = Math.round(y / spacing);
+
           dots.push({
             originX: (x / offscreen.width) * width,
             originY: (y / offscreen.height) * height,
+            gridX,
+            gridY,
             base,
             pulsePhase: getDotNoise(x, y, 1) * Math.PI * 2,
-            pulseSpeed: 1.1 + getDotNoise(x, y, 2) * 1.3,
+            pulseSpeed: 0.45 + getDotNoise(x, y, 2) * 0.65,
             secondaryPhase: getDotNoise(x, y, 3) * Math.PI * 2,
-            secondarySpeed: 0.5 + getDotNoise(x, y, 4) * 0.8,
+            secondarySpeed: 0.2 + getDotNoise(x, y, 4) * 0.4,
           });
         }
       }
@@ -250,14 +356,17 @@ export function BackgroundReveal() {
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
       if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
-        ripples.push({
-          x,
-          y,
-          born: performance.now(),
-          speed: 380,
-          maxRadius: 520,
-          strength: 0.85,
-        });
+        ripples = [
+          {
+            x,
+            y,
+            born: performance.now(),
+            speed: 280,
+            maxRadius: 320,
+            strength: 1.0,
+            waveWidth: 56,
+          },
+        ];
         if (reducedMotion.matches && !document.hidden) {
           draw(performance.now());
         }
@@ -281,7 +390,7 @@ export function BackgroundReveal() {
     resizeObserver.observe(canvas);
     document.addEventListener('visibilitychange', onVisibilityChange);
     window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointerdown', onPointerDown, { capture: true });
     window.addEventListener('pointerleave', onPointerLeave);
     reducedMotion.addEventListener('change', setup);
 
@@ -290,7 +399,7 @@ export function BackgroundReveal() {
       resizeObserver.disconnect();
       document.removeEventListener('visibilitychange', onVisibilityChange);
       window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointerdown', onPointerDown, { capture: true });
       window.removeEventListener('pointerleave', onPointerLeave);
       reducedMotion.removeEventListener('change', setup);
       source.onload = null;

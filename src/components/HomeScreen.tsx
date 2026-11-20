@@ -1,4 +1,10 @@
-import { useState, type Dispatch, type PointerEvent, type SetStateAction } from 'react';
+import {
+  useRef,
+  useState,
+  type Dispatch,
+  type PointerEvent,
+  type SetStateAction,
+} from 'react';
 import { DESIGN_FOLDERS, PROJECTS, SOUND_FOLDERS } from '../data/content';
 import type { FolderId, FolderMeta, OSMode } from '../types';
 import { ReleaseNotesContent } from './ReleaseNotesContent';
@@ -83,6 +89,33 @@ const PROJECT_HIGHLIGHTS = [
   },
 ];
 
+const SOUND_HIGHLIGHTS = [
+  {
+    id: 'latest-single',
+    category: 'RECENT TRACKS',
+    title: 'Ancestry',
+    details: 'Latest Single',
+    image: musicSingle,
+    folderId: 'singles' as FolderId,
+  },
+  {
+    id: 'latest-album',
+    category: 'FULL-LENGTH RELEASES',
+    title: 'Latest Album',
+    details: 'Explore album releases',
+    image: musicAlbum,
+    folderId: 'albums' as FolderId,
+  },
+  {
+    id: 'latest-press',
+    category: 'FEATURES & INTERVIEWS',
+    title: 'Latest Press',
+    details: 'Explore press features',
+    image: musicPress,
+    folderId: 'press' as FolderId,
+  },
+];
+
 const CALLOUT_ANCHORS = [
   {
     id: 'digital',
@@ -92,6 +125,12 @@ const CALLOUT_ANCHORS = [
     y: 25,
     endX: 66,
     endY: 28,
+    space: {
+      left: 46,
+      top: 8,
+      width: 32,
+      height: 34,
+    },
   },
   {
     id: 'experiments',
@@ -101,6 +140,12 @@ const CALLOUT_ANCHORS = [
     y: 62,
     endX: 42,
     endY: 58,
+    space: {
+      left: 20,
+      top: 42,
+      width: 32,
+      height: 36,
+    },
   },
   {
     id: 'systems',
@@ -110,46 +155,92 @@ const CALLOUT_ANCHORS = [
     y: 68,
     endX: 75,
     endY: 71,
+    space: {
+      left: 54,
+      top: 48,
+      width: 30,
+      height: 36,
+    },
   },
 ] as const;
 
-type ActiveCallout = {
+type CalloutAnchor = {
   id: (typeof CALLOUT_ANCHORS)[number]['id'];
-  centerX: number;
-  centerY: number;
-  localX: number;
-  localY: number;
+  folderId: FolderId;
+  label: string;
+  x: number;
+  y: number;
+  endX: number;
+  endY: number;
+  space: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  };
 };
 
-function updateActiveCallout(
+type ActiveCallout = {
+  id: (typeof CALLOUT_ANCHORS)[number]['id'];
+  x: number;
+  y: number;
+};
+
+function handleSpacePointerMove(
   event: PointerEvent<HTMLDivElement>,
-  id: ActiveCallout['id'],
+  anchor: CalloutAnchor,
+  containerRef: React.RefObject<HTMLDivElement | null>,
   setActiveCallout: Dispatch<SetStateAction<ActiveCallout | null>>,
 ) {
   if (event.pointerType !== 'mouse') return;
 
-  const layer = event.currentTarget.parentElement?.getBoundingClientRect();
-  const zone = event.currentTarget.getBoundingClientRect();
-  const badge = event.currentTarget.querySelector<HTMLElement>('.home__callout');
-  if (!layer || !badge || layer.width === 0 || layer.height === 0) return;
+  const containerRect = containerRef.current?.getBoundingClientRect();
+  if (
+    !containerRect ||
+    containerRect.width === 0 ||
+    containerRect.height === 0
+  ) {
+    return;
+  }
 
-  const halfWidth = badge.offsetWidth / 2 + 4;
-  const halfHeight = badge.offsetHeight / 2 + 4;
-  const localX = Math.max(
-    halfWidth,
-    Math.min(zone.width - halfWidth, event.clientX - zone.left),
+  // Pointer position in percentage coordinates of the callouts container
+  const rawX =
+    ((event.clientX - containerRect.left) / containerRect.width) * 100;
+  const rawY =
+    ((event.clientY - containerRect.top) / containerRect.height) * 100;
+
+  // Clamp within the anchor's active space with boundary padding
+  const padX = 4.5;
+  const padY = 2.5;
+  const clampedX = Math.max(
+    anchor.space.left + padX,
+    Math.min(anchor.space.left + anchor.space.width - padX, rawX),
   );
-  const localY = Math.max(
-    halfHeight,
-    Math.min(zone.height - halfHeight, event.clientY - zone.top),
+  const clampedY = Math.max(
+    anchor.space.top + padY,
+    Math.min(anchor.space.top + anchor.space.height - padY, rawY),
   );
+
+  // Keep a minimum leader line length so the badge never obscures the anchor dot
+  let targetX = clampedX;
+  let targetY = clampedY;
+  const dx = targetX - anchor.x;
+  const dy = targetY - anchor.y;
+  const dist = Math.hypot(dx, dy);
+  const minLeader = 4.0;
+  if (dist < minLeader) {
+    if (dist > 0.01) {
+      targetX = anchor.x + (dx / dist) * minLeader;
+      targetY = anchor.y + (dy / dist) * minLeader;
+    } else {
+      targetX = anchor.x + minLeader;
+    }
+  }
 
   setActiveCallout({
-    id,
-    centerX: ((zone.left + localX - layer.left) / layer.width) * 100,
-    centerY: ((zone.top + localY - layer.top) / layer.height) * 100,
-    localX,
-    localY,
+    id: anchor.id,
+    x: targetX,
+    y: targetY,
   });
 }
 
@@ -158,6 +249,7 @@ export function HomeScreen({
   onOpenFolder,
   onOpenProject,
 }: HomeScreenProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [activeCallout, setActiveCallout] = useState<ActiveCallout | null>(
     null,
   );
@@ -180,69 +272,126 @@ export function HomeScreen({
           folders.find((folder) => folder.id === id),
         ).filter((folder): folder is FolderMeta => folder !== undefined)
       : folders;
+  const calloutAnchors: readonly CalloutAnchor[] =
+    mode === 'sound'
+      ? CALLOUT_ANCHORS.map((anchor): CalloutAnchor => {
+          if (anchor.id === 'digital') {
+            return { ...anchor, label: 'RECENT TRACKS', folderId: 'singles' as FolderId };
+          }
+          if (anchor.id === 'experiments') {
+            return { ...anchor, label: 'LATEST PRESS', folderId: 'press' as FolderId };
+          }
+          return { ...anchor, label: 'EXPERIMENTS', folderId: 'playground' as FolderId };
+        })
+      : CALLOUT_ANCHORS;
+  const highlights =
+    mode === 'sound'
+      ? SOUND_HIGHLIGHTS.map((item) => ({
+          ...item,
+          onOpen: () => onOpenFolder(item.folderId),
+        }))
+      : PROJECT_HIGHLIGHTS.map((item) => ({
+          ...item,
+          id: item.projectId,
+          onOpen: () => onOpenProject(item.projectId),
+        }));
 
   return (
     <section className="desktop__home" aria-label="Portfolio home">
       <div className="home__intro">
         <h1>
-          Designing how
-          <br />
-          things feel.
+          {mode === 'sound' ? (
+            <>
+              Composing how
+              <br />
+              sound envisions
+            </>
+          ) : (
+            <>
+              Designing how
+              <br />
+              things feel.
+            </>
+          )}
         </h1>
         <span className="home__hero-rule" aria-hidden="true" />
       </div>
 
-      <div className="home__callouts">
+      <div className="home__callouts" ref={containerRef}>
         <svg
           className="home__callout-lines"
           viewBox="0 0 1000 1000"
           preserveAspectRatio="none"
           aria-hidden="true"
         >
-          {CALLOUT_ANCHORS.map((anchor) => {
+          {calloutAnchors.map((anchor) => {
             const active = activeCallout?.id === anchor.id;
             return (
-              <g key={anchor.id} className="home__callout-anchor-group">
-                <line
-                  x1={anchor.x * 10}
-                  y1={anchor.y * 10}
-                  x2={(active ? activeCallout.centerX : anchor.endX) * 10}
-                  y2={(active ? activeCallout.centerY : anchor.endY) * 10}
-                />
-              </g>
+              <line
+                key={anchor.id}
+                x1={anchor.x * 10}
+                y1={anchor.y * 10}
+                x2={(active ? activeCallout.x : anchor.endX) * 10}
+                y2={(active ? activeCallout.y : anchor.endY) * 10}
+              />
             );
           })}
         </svg>
-        {CALLOUT_ANCHORS.map((anchor) => (
-          <span
-            key={`${anchor.id}-anchor`}
-            className="home__callout-anchor-point"
-            style={{ left: `${anchor.x}%`, top: `${anchor.y}%` }}
-            aria-hidden="true"
-          />
-        ))}
-        {CALLOUT_ANCHORS.map((anchor) => (
+
+        {calloutAnchors.map((anchor) => {
+          const active = activeCallout?.id === anchor.id;
+          return (
+            <span
+              key={`${anchor.id}-anchor`}
+              className={`home__callout-anchor-point ${
+                active ? 'home__callout-anchor-point--active' : ''
+              }`}
+              style={{ left: `${anchor.x}%`, top: `${anchor.y}%` }}
+              aria-hidden="true"
+            />
+          );
+        })}
+
+        {calloutAnchors.map((anchor) => (
           <div
             key={anchor.id}
-            className={`home__callout-zone home__callout-zone--${anchor.id}`}
+            className={`home__callout-space home__callout-space--${anchor.id}`}
+            style={{
+              left: `${anchor.space.left}%`,
+              top: `${anchor.space.top}%`,
+              width: `${anchor.space.width}%`,
+              height: `${anchor.space.height}%`,
+            }}
             onPointerEnter={(event) =>
-              updateActiveCallout(event, anchor.id, setActiveCallout)
+              handleSpacePointerMove(
+                event,
+                anchor,
+                containerRef,
+                setActiveCallout,
+              )
             }
             onPointerMove={(event) =>
-              updateActiveCallout(event, anchor.id, setActiveCallout)
+              handleSpacePointerMove(
+                event,
+                anchor,
+                containerRef,
+                setActiveCallout,
+              )
             }
-            onPointerLeave={() => setActiveCallout(null)}
+            onPointerLeave={() =>
+              setActiveCallout((prev) => (prev?.id === anchor.id ? null : prev))
+            }
             onClick={() => onOpenFolder(anchor.folderId)}
             onFocus={() =>
               setActiveCallout({
                 id: anchor.id,
-                centerX: anchor.endX,
-                centerY: anchor.endY,
-                localX: -1,
-                localY: -1,
+                x: anchor.endX,
+                y: anchor.endY,
               })
             }
-            onBlur={() => setActiveCallout(null)}
+            onBlur={() =>
+              setActiveCallout((prev) => (prev?.id === anchor.id ? null : prev))
+            }
             onKeyDown={(event) => {
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
@@ -252,26 +401,30 @@ export function HomeScreen({
             role="button"
             tabIndex={0}
             aria-label={`Open ${anchor.label} projects`}
-          >
+          />
+        ))}
+
+        {calloutAnchors.map((anchor) => {
+          const active = activeCallout?.id === anchor.id;
+          const posX = active ? activeCallout.x : anchor.endX;
+          const posY = active ? activeCallout.y : anchor.endY;
+
+          return (
             <span
-              className={`home__callout home__callout--${anchor.id} ${
-                activeCallout?.id === anchor.id ? 'home__callout--active' : ''
+              key={`${anchor.id}-badge`}
+              className={`home__callout ${
+                active ? 'home__callout--active' : ''
               }`}
-              style={
-                activeCallout?.id === anchor.id &&
-                activeCallout.localX >= 0
-                  ? {
-                      left: `${activeCallout.localX}px`,
-                      top: `${activeCallout.localY}px`,
-                    }
-                  : undefined
-              }
+              style={{
+                left: `${posX}%`,
+                top: `${posY}%`,
+              }}
               aria-hidden="true"
             >
               {anchor.label}
             </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <article className="home__release">
@@ -339,7 +492,7 @@ export function HomeScreen({
         className={`home__project-section ${
           isHighlightsOpen ? 'home__project-section--open' : ''
         }`}
-        aria-label="Project highlights"
+        aria-label={mode === 'sound' ? 'Highlights' : 'Project highlights'}
         onMouseEnter={() => setIsHighlightsHovered(true)}
         onMouseLeave={() => setIsHighlightsHovered(false)}
       >
@@ -349,9 +502,9 @@ export function HomeScreen({
           onClick={() => setIsHighlightsPinned((prev) => !prev)}
           aria-expanded={isHighlightsOpen}
           aria-controls="home-highlights-grid"
-          aria-label="Toggle Project Highlights accordion"
+          aria-label={`Toggle ${mode === 'sound' ? 'Highlights' : 'Project Highlights'} accordion`}
         >
-          <span>Project Highlights</span>
+          <span>{mode === 'sound' ? 'Highlights' : 'Project Highlights'}</span>
           <span className="home__highlights-heading-meta" aria-hidden="true">
             <span className="home__highlights-count">3</span>
             <svg
@@ -379,17 +532,17 @@ export function HomeScreen({
         >
           <div className="home__highlights-accordion-inner">
             <div className="home__highlights">
-              {PROJECT_HIGHLIGHTS.map((project) => (
+              {highlights.map((project) => (
                 <article
                   className="home__highlight"
-                  key={project.projectId}
-                  onClick={() => onOpenProject(project.projectId)}
+                  key={project.id}
+                  onClick={project.onOpen}
                   tabIndex={0}
                   role="button"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      onOpenProject(project.projectId);
+                      project.onOpen();
                     }
                   }}
                 >
@@ -407,7 +560,7 @@ export function HomeScreen({
                       className="home__highlight-open"
                       onClick={(e) => {
                         e.stopPropagation();
-                        onOpenProject(project.projectId);
+                        project.onOpen();
                       }}
                       aria-label={`Open ${project.title}`}
                     >

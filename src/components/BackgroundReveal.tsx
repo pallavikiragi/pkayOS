@@ -156,7 +156,7 @@ export function BackgroundReveal() {
         const posX = dot.originX;
         const posY = dot.originY;
 
-        // 3. Subtle click reactivity within a small radius: gentle size dip + subtle traveling wave
+        // 3. Dynamic click reactivity: pronounced dip to small followed by powerful surge to big
         for (let r = 0; r < ripples.length; r++) {
           const ripple = ripples[r];
           const age = (now - ripple.born) / 1000;
@@ -165,21 +165,19 @@ export function BackgroundReveal() {
           const dy = dot.originY - ripple.y;
           const dist = Math.hypot(dx, dy);
 
-          // Subtle immediate size dip around click location (wider 85px radius)
-          const impactDuration = 0.38;
+          // Immediate size compression around click location
+          const impactDuration = 0.42;
           if (age < impactDuration) {
-            const impactRadius = 85;
+            const impactRadius = 135;
             if (dist < impactRadius) {
               const distFactor = 1 - dist / impactRadius;
-              const timeFactor = Math.sin(
-                (1 - age / impactDuration) * (Math.PI / 2),
-              );
-              // Very gentle, non-stark size decrease upon click
-              scale -= distFactor * timeFactor * 0.22;
+              const progress = age / impactDuration;
+              const dipPhase = Math.sin(progress * Math.PI);
+              scale -= distFactor * dipPhase * 0.55;
             }
           }
 
-          // Subtle single wave confined within wider radius
+          // Traveling wave: distinctly pulls dots small then swells them big
           const delta = dist - currentRadius;
           const halfBand = ripple.waveWidth;
 
@@ -187,10 +185,14 @@ export function BackgroundReveal() {
             const norm = delta / halfBand;
             const envelope = Math.cos(norm * (Math.PI / 2)) ** 2;
             const waveCycle = -Math.sin(norm * Math.PI);
-            const life = Math.max(0, 1 - currentRadius / ripple.maxRadius);
+            const life = Math.pow(
+              Math.max(0, 1 - currentRadius / ripple.maxRadius),
+              0.65,
+            );
 
-            // Gentle size modulation: subtly decreases then increases dot size
-            scale += waveCycle * envelope * life * ripple.strength * 0.40;
+            // Distinct small-to-big transition: dip when norm > 0, large crest when norm < 0
+            const waveAmplitude = waveCycle >= 0 ? 1.45 : 0.85;
+            scale += waveCycle * waveAmplitude * envelope * life * ripple.strength;
           }
         }
 
@@ -199,11 +201,12 @@ export function BackgroundReveal() {
 
         // Inside hover sphere: convert spaced dot into randomized animating ASCII character
         if (isAsciiCell && asciiInfluence > 0) {
-          const char = getAsciiGlyph(dot.base, dot.pulsePhase, animTime, i);
+          const effectiveBase = dot.base * Math.max(0.4, Math.min(1.8, scale));
+          const char = getAsciiGlyph(effectiveBase, dot.pulsePhase, animTime, i);
           const font =
-            dot.base >= 3.2
+            effectiveBase >= 3.2
               ? FONT_LARGE
-              : dot.base < 1.6
+              : effectiveBase < 1.6
                 ? FONT_SMALL
                 : FONT_MEDIUM;
           asciiQueue.push({
@@ -220,7 +223,7 @@ export function BackgroundReveal() {
           const circleScale = scale * (1 - asciiInfluence);
           const radius = Math.max(
             0,
-            dot.base * Math.max(minimumDotScale, Math.min(1.45, circleScale)),
+            dot.base * Math.max(minimumDotScale, Math.min(2.6, circleScale)),
           );
           if (radius >= 0.25) {
             context.moveTo(posX + radius, posY);
@@ -356,17 +359,17 @@ export function BackgroundReveal() {
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
       if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
-        ripples = [
-          {
-            x,
-            y,
-            born: performance.now(),
-            speed: 280,
-            maxRadius: 320,
-            strength: 1.0,
-            waveWidth: 56,
-          },
-        ];
+        const dynamicMaxRadius = Math.max(720, Math.min(width, height) * 0.85);
+        const newRipple: Ripple = {
+          x,
+          y,
+          born: performance.now(),
+          speed: 400,
+          maxRadius: dynamicMaxRadius,
+          strength: 1.0,
+          waveWidth: 80,
+        };
+        ripples = [...ripples.slice(-4), newRipple];
         if (reducedMotion.matches && !document.hidden) {
           draw(performance.now());
         }

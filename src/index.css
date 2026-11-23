@@ -2588,7 +2588,7 @@ button {
 }
 
 .home__intro h1 span {
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .home__manifesto {
@@ -3141,16 +3141,29 @@ button {
   font-family: var(--font-display);
   font-size: clamp(42px, 3.85vw, 66px);
   font-weight: 400;
-  line-height: 1.25;
+  line-height: 1.2;
   letter-spacing: -0.055em;
+  color: #000000;
+}
+
+.home__title-highlight {
+  display: inline-block;
+  background-color: #eff0f4;
+  color: #000000;
+  font-weight: 400;
+  padding: 0.05em 0.22em 0.08em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .pkay-os--sound .desktop__home {
   color: #fff;
 }
 
-.pkay-os--sound .home__intro h1 {
-  color: #fff;
+.pkay-os--sound .home__intro h1,
+.pkay-os--sound .home__title-highlight {
+  color: #000000;
+  background-color: #ffffff;
 }
 
 .home__subhead {

@@ -302,15 +302,15 @@ export function HomeScreen({
         <h1>
           {mode === 'sound' ? (
             <>
-              Composing how
+              <span className="home__title-highlight">Composing how</span>
               <br />
-              sound envisions
+              <span className="home__title-highlight">sound envisions</span>
             </>
           ) : (
             <>
-              Designing how
+              <span className="home__title-highlight">Designing how</span>
               <br />
-              things feel.
+              <span className="home__title-highlight">things feel.</span>
             </>
           )}
         </h1>

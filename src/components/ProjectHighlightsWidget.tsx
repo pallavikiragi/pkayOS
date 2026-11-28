@@ -1,5 +1,6 @@
 import { OverviewWindow } from './OverviewWindow';
 import type { WidgetLayout } from '../data/widgets';
+import { Button } from './Button';
 
 interface ProjectHighlightsWidgetProps {
   title: string;
@@ -19,20 +20,20 @@ export function ProjectHighlightsWidget({
       variant="highlights"
       headerActions={
         <div className="overview-window__nav">
-          <button
-            type="button"
+          <Button
+            compact
             className="overview-window__nav-btn"
             aria-label="Previous project"
           >
             ←
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            compact
             className="overview-window__nav-btn"
             aria-label="Next project"
           >
             →
-          </button>
+          </Button>
         </div>
       }
     >
@@ -50,12 +51,13 @@ export function ProjectHighlightsWidget({
           </p>
           <div className="highlight-feature__meta">
             <span className="highlight-feature__year">YEAR: 2022</span>
-            <button 
+            <Button
+              showArrow
               className="highlight-feature__cta"
               onClick={() => onOpenProject('covid-sound')}
             >
-              OPEN PROJECT →
-            </button>
+              OPEN PROJECT
+            </Button>
           </div>
         </div>
       </div>

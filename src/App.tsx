@@ -25,7 +25,6 @@ import type { FolderId, OSMode } from './types';
 function App() {
   const [mode, setMode] = useState<OSMode>('design');
   const [activePage, setActivePage] = useState<'home' | 'profile'>('home');
-  const [profileMinimized, setProfileMinimized] = useState(false);
   const {
     windows,
     openFolder,
@@ -74,7 +73,6 @@ function App() {
       archiveType?: Parameters<typeof openPage>[1],
     ) => {
       setActivePage('home');
-      setProfileMinimized(false);
       openPage(kind, archiveType);
     },
     [openPage],
@@ -89,10 +87,7 @@ function App() {
         onOpenPage={handleOpenPage}
         onToggleMode={toggleMode}
         onShowHome={() => setActivePage('home')}
-        onShowProfile={() => {
-          setProfileMinimized(false);
-          setActivePage('profile');
-        }}
+        onShowProfile={() => setActivePage('profile')}
       />
 
       <main className="desktop">
@@ -173,21 +168,8 @@ function App() {
                   </OSWindow>
                 );
               })}
-              {(profileMinimized || windows.some((win) => win.isMinimized)) && (
+              {windows.some((win) => win.isMinimized) && (
                 <div className="desktop__minimized-windows" aria-label="Minimized windows">
-                  {profileMinimized && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProfileMinimized(false);
-                        setActivePage('profile');
-                      }}
-                      aria-label="Restore ABOUT.TXT"
-                      title="Restore ABOUT.TXT"
-                    >
-                      ABOUT.TXT
-                    </button>
-                  )}
                   {windows.filter((win) => win.isMinimized).map((win) => (
                     <button
                       key={win.id}
@@ -217,14 +199,7 @@ function App() {
           </>
         ) : (
           <ProfilePage
-            onClose={() => {
-              setProfileMinimized(false);
-              setActivePage('home');
-            }}
-            onMinimize={() => {
-              setProfileMinimized(true);
-              setActivePage('home');
-            }}
+            onClose={() => setActivePage('home')}
           />
         )}
       </main>

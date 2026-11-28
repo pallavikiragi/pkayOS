@@ -1,5 +1,6 @@
 import type { Project } from '../types';
 import { formatTagList, toTitleCase, truncateText } from '../utils/display';
+import { Button } from './Button';
 
 interface ProjectTileProps {
   project: Project;
@@ -45,16 +46,17 @@ export function ProjectTile({
           <p className="project-card__excerpt">
             {truncateText(project.summary, excerptLength)}
           </p>
-          <button
-            type="button"
+          <Button
+            compact
+            showArrow
             className="project-card__open"
             onClick={(e) => {
               e.stopPropagation();
               onOpen(project.id);
             }}
           >
-            OPEN →
-          </button>
+            OPEN
+          </Button>
         </div>
         <p className="project-card__tags-line">{formatTagList(project.tags)}</p>
       </div>

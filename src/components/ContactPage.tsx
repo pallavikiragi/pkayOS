@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Button } from './Button';
 
 export function ContactPage() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
@@ -21,13 +22,14 @@ export function ContactPage() {
           className="contact-textarea"
           disabled={status !== 'idle'}
         />
-        <button 
+        <Button
+          showArrow
           className={`contact-send ${status !== 'idle' ? 'contact-send--disabled' : ''}`}
           onClick={handleSend}
           disabled={status !== 'idle'}
         >
           {status === 'idle' ? '[ SEND_MESSAGE ]' : status === 'sending' ? '[ SENDING... ]' : '[ MESSAGE_SENT ]'}
-        </button>
+        </Button>
       </div>
     </div>
   );

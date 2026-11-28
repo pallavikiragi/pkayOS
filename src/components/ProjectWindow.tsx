@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { getProject } from '../data/content';
+import { Button } from './Button';
 
 interface ProjectWindowProps {
   projectId: string;
@@ -75,13 +76,15 @@ export function ProjectWindow({ projectId }: ProjectWindowProps) {
 
       <nav className="case-study__anchors">
         {standardAnchors.map((anchor) => (
-          <button
+          <Button
+            compact
             key={anchor.id}
-            className={`filter-chip ${activeAnchor === anchor.id ? 'filter-chip--active' : ''}`}
+            variant={activeAnchor === anchor.id ? 'blue' : 'default'}
+            className="filter-chip"
             onClick={() => handleAnchorClick(anchor.id)}
           >
             {anchor.label}
-          </button>
+          </Button>
         ))}
       </nav>
 

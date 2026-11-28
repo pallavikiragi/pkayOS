@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PROJECTS } from '../data/content';
 import { ProjectTile } from './ProjectTile';
+import { Button } from './Button';
 
 interface ArchivePageProps {
   type: 'all' | 'feature' | 'studio';
@@ -29,13 +30,15 @@ export function ArchivePage({ type, onOpenProject }: ArchivePageProps) {
         </h1>
         <div className="filter-chips">
           {categories.map((cat) => (
-            <button
+            <Button
+              compact
               key={cat}
-              className={`filter-chip ${filter === cat ? 'filter-chip--active' : ''}`}
+              variant={filter === cat ? 'blue' : 'default'}
+              className="filter-chip"
               onClick={() => setFilter(cat)}
             >
               {cat}
-            </button>
+            </Button>
           ))}
         </div>
       </header>

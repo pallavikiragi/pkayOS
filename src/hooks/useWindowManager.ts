@@ -180,7 +180,11 @@ export function useWindowManager() {
       if (!project) return;
       const id = makeId('project', projectId);
       setWindows((prev) => {
-        if (prev.find((w) => w.id === id)) return prev;
+        if (prev.find((w) => w.id === id)) {
+          return prev.map((w) =>
+            w.id === id ? { ...w, isMinimized: false } : w,
+          );
+        }
         zCounter += 1;
         return [
           ...prev,

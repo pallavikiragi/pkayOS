@@ -1,3 +1,5 @@
+import { Button } from './Button';
+
 export function WritingsPage() {
   const posts = [
     { title: 'The Future of Interaction', date: '24.05.2024', summary: 'How generative systems are changing the way we perceive software metaphors.' },
@@ -13,7 +15,9 @@ export function WritingsPage() {
             <h3 className="blog-post__title">{post.title.toUpperCase()}</h3>
           </header>
           <p className="blog-post__summary">{post.summary}</p>
-          <button className="blog-post__read">[ READ_MORE ]</button>
+          <Button compact showArrow className="blog-post__read">
+            [ READ_MORE ]
+          </Button>
         </article>
       ))}
     </div>

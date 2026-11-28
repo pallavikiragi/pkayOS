@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Button } from './Button';
 
 interface Client {
   id: string;
@@ -34,7 +35,8 @@ export function ClientsPage({ onOpenProject }: ClientsPageProps) {
         <div className="network-popup" onClick={() => setSelected(null)}>
           <div className="network-popup__content" onClick={e => e.stopPropagation()}>
             <h3>CLIENT: {selected.name}</h3>
-            <button 
+            <Button
+              showArrow
               className="network-cta" 
               onClick={() => {
                 onOpenProject(selected.projectId);
@@ -42,7 +44,7 @@ export function ClientsPage({ onOpenProject }: ClientsPageProps) {
               }}
             >
               [ VIEW CASE STUDY ]
-            </button>
+            </Button>
           </div>
         </div>
       )}

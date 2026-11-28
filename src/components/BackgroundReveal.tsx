@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import backgroundImage from '../assets/halftone-background.png';
+import backgroundImage1 from '../assets/halftone-background.png';
+import backgroundImage2 from '../assets/halftone-background-2.png';
 
 function getDotNoise(x: number, y: number, salt: number) {
   let value = Math.imul(x ^ salt, 0x45d9f3b);
@@ -19,6 +20,20 @@ interface Ripple {
   waveWidth: number;
 }
 
+interface HalftoneDot {
+  originX: number;
+  originY: number;
+  gridX: number;
+  gridY: number;
+  base1: number;
+  base2: number;
+  morphOffset: number;
+  pulsePhase: number;
+  pulseSpeed: number;
+  secondaryPhase: number;
+  secondarySpeed: number;
+}
+
 const ASCII_DENSE = [
   '@', '#', '$', '%', '&', '8', 'B', 'W', 'M', '0', 'Q', 'X', 'Z',
 ];
@@ -33,6 +48,73 @@ const FONT_SMALL = '600 8px "IBM Plex Mono", "Courier New", monospace';
 const FONT_MEDIUM = '600 9.5px "IBM Plex Mono", "Courier New", monospace';
 const FONT_LARGE = '600 11.5px "IBM Plex Mono", "Courier New", monospace';
 
+const HOLD_SECONDS = 7;
+const TRANSITION_SECONDS = 2.2;
+const MORPH_WINDOW = 0.55;
+const MAX_BASE_DOT_RADIUS = 3.2;
+const MAX_RENDER_DOT_RADIUS = 4.8;
+
+function smoothstep(t: number): number {
+  const clamped = Math.max(0, Math.min(1, t));
+  return clamped * clamped * (3 - 2 * clamped);
+}
+
+/**
+ * Returns a cyclic [0, 1] blend factor that holds each background in place
+ * before smoothly morphing to the other.
+ */
+function getBackgroundBlend(time: number, canCycle: boolean): number {
+  if (!canCycle) return 0;
+
+  const halfCycle = HOLD_SECONDS + TRANSITION_SECONDS;
+  const fullCycle = halfCycle * 2;
+  const phase = time % fullCycle;
+
+  if (phase < HOLD_SECONDS) return 0;
+  if (phase < halfCycle) return (phase - HOLD_SECONDS) / TRANSITION_SECONDS;
+  if (phase < halfCycle + HOLD_SECONDS) return 1;
+  return 1 - (phase - (halfCycle + HOLD_SECONDS)) / TRANSITION_SECONDS;
+}
+
+function sampleImagePixels(
+  image: HTMLImageElement,
+  offscreen: HTMLCanvasElement,
+  offscreenContext: CanvasRenderingContext2D,
+  fitMode: 'cover' | 'contain' = 'cover',
+  scaleFactor = 1,
+): Uint8ClampedArray {
+  offscreenContext.fillStyle = '#fff';
+  offscreenContext.fillRect(0, 0, offscreen.width, offscreen.height);
+
+  const baseScale =
+    fitMode === 'contain'
+      ? Math.min(
+          offscreen.width / image.naturalWidth,
+          offscreen.height / image.naturalHeight,
+        )
+      : Math.max(
+          offscreen.width / image.naturalWidth,
+          offscreen.height / image.naturalHeight,
+        );
+  const scale = baseScale * scaleFactor;
+  const imageWidth = image.naturalWidth * scale;
+  const imageHeight = image.naturalHeight * scale;
+  offscreenContext.drawImage(
+    image,
+    (offscreen.width - imageWidth) / 2,
+    (offscreen.height - imageHeight) / 2,
+    imageWidth,
+    imageHeight,
+  );
+
+  return offscreenContext.getImageData(
+    0,
+    0,
+    offscreen.width,
+    offscreen.height,
+  ).data;
+}
+
 function getAsciiGlyph(
   base: number,
   phase: number,
@@ -44,11 +126,11 @@ function getAsciiGlyph(
   const hash = Math.imul(tick ^ (index * 2654435761), 0x45d9f3b);
   const u = ((hash >>> 0) % 1000) / 1000;
 
-  if (base >= 3.2) {
+  if (base >= 2.1) {
     const i = Math.floor(u * ASCII_DENSE.length);
     return ASCII_DENSE[i];
   }
-  if (base < 1.6) {
+  if (base < 1.0) {
     const i = Math.floor(u * ASCII_LIGHT.length);
     return ASCII_LIGHT[i];
   }
@@ -69,7 +151,8 @@ export function BackgroundReveal() {
       return;
     }
 
-    const source = new Image();
+    const source1 = new Image();
+    const source2 = new Image();
     const offscreen = document.createElement('canvas');
     const offscreenContext = offscreen.getContext('2d', {
       willReadFrequently: true,
@@ -83,17 +166,8 @@ export function BackgroundReveal() {
       '(prefers-reduced-motion: reduce)',
     );
     const start = performance.now();
-    let dots: {
-      originX: number;
-      originY: number;
-      gridX: number;
-      gridY: number;
-      base: number;
-      pulsePhase: number;
-      pulseSpeed: number;
-      secondaryPhase: number;
-      secondarySpeed: number;
-    }[] = [];
+    let dots: HalftoneDot[] = [];
+    let hasSecondBg = false;
     let width = 0;
     let height = 0;
     let frameId = 0;
@@ -117,6 +191,12 @@ export function BackgroundReveal() {
       context.fillStyle = '#111';
       const time = (now - start) / 1000;
       const animTime = reducedMotion.matches ? 0 : time;
+      const blend = getBackgroundBlend(
+        animTime,
+        hasSecondBg && !reducedMotion.matches,
+      );
+      // Soften the denser second background while preserving the first background's look
+      const bgAlpha = 1 - blend * 0.42;
       asciiQueue.length = 0;
 
       // Clean up finished ripples
@@ -129,6 +209,23 @@ export function BackgroundReveal() {
 
       for (let i = 0; i < dots.length; i++) {
         const dot = dots[i];
+
+        if (blend === 0 && dot.base1 === 0) continue;
+        if (blend === 1 && dot.base2 === 0) continue;
+
+        let currentBase: number;
+        if (blend === 0) {
+          currentBase = dot.base1;
+        } else if (blend === 1) {
+          currentBase = dot.base2;
+        } else {
+          const localProgress = smoothstep(
+            (blend - dot.morphOffset) / MORPH_WINDOW,
+          );
+          currentBase = dot.base1 + (dot.base2 - dot.base1) * localProgress;
+        }
+
+        if (currentBase < 0.08) continue;
 
         // 1. Dynamic in-place breathing (dots smoothly increase and decrease size)
         const pulse1 = Math.sin(time * dot.pulseSpeed + dot.pulsePhase);
@@ -201,12 +298,13 @@ export function BackgroundReveal() {
 
         // Inside hover sphere: convert spaced dot into randomized animating ASCII character
         if (isAsciiCell && asciiInfluence > 0) {
-          const effectiveBase = dot.base * Math.max(0.4, Math.min(1.8, scale));
+          const effectiveBase =
+            currentBase * Math.max(0.4, Math.min(1.8, scale));
           const char = getAsciiGlyph(effectiveBase, dot.pulsePhase, animTime, i);
           const font =
-            effectiveBase >= 3.2
+            effectiveBase >= 2.1
               ? FONT_LARGE
-              : effectiveBase < 1.6
+              : effectiveBase < 1.0
                 ? FONT_SMALL
                 : FONT_MEDIUM;
           asciiQueue.push({
@@ -221,9 +319,13 @@ export function BackgroundReveal() {
         // Draw regular circle dot outside or transitioning into hover sphere
         if (asciiInfluence < 0.95) {
           const circleScale = scale * (1 - asciiInfluence);
-          const radius = Math.max(
-            0,
-            dot.base * Math.max(minimumDotScale, Math.min(2.6, circleScale)),
+          const radius = Math.min(
+            MAX_RENDER_DOT_RADIUS,
+            Math.max(
+              0,
+              currentBase *
+                Math.max(minimumDotScale, Math.min(1.8, circleScale)),
+            ),
           );
           if (radius >= 0.25) {
             context.moveTo(posX + radius, posY);
@@ -232,6 +334,7 @@ export function BackgroundReveal() {
         }
       }
 
+      context.globalAlpha = bgAlpha;
       context.fill();
 
       // Render animated ASCII characters inside cursor hover sphere
@@ -246,12 +349,12 @@ export function BackgroundReveal() {
             context.font = item.font;
             activeFont = item.font;
           }
-          context.globalAlpha = item.alpha;
+          context.globalAlpha = item.alpha * bgAlpha;
           context.fillText(item.char, item.x, item.y);
         }
-
-        context.globalAlpha = 1;
       }
+
+      context.globalAlpha = 1;
 
       if (!reducedMotion.matches && !document.hidden) {
         frameId = requestAnimationFrame(draw);
@@ -259,7 +362,7 @@ export function BackgroundReveal() {
     };
 
     const setup = () => {
-      if (!source.complete || source.naturalWidth === 0) return;
+      if (!source1.complete || source1.naturalWidth === 0) return;
 
       const rect = canvas.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return;
@@ -276,51 +379,56 @@ export function BackgroundReveal() {
         1,
         Math.round((offscreen.width * height) / width),
       );
-      offscreenContext.fillStyle = '#fff';
-      offscreenContext.fillRect(0, 0, offscreen.width, offscreen.height);
 
-      const scale = Math.max(
-        offscreen.width / source.naturalWidth,
-        offscreen.height / source.naturalHeight,
+      const pixels1 = sampleImagePixels(
+        source1,
+        offscreen,
+        offscreenContext,
+        'cover',
+        1,
       );
-      const imageWidth = source.naturalWidth * scale;
-      const imageHeight = source.naturalHeight * scale;
-      offscreenContext.drawImage(
-        source,
-        (offscreen.width - imageWidth) / 2,
-        (offscreen.height - imageHeight) / 2,
-        imageWidth,
-        imageHeight,
-      );
+      hasSecondBg = source2.complete && source2.naturalWidth > 0;
+      const pixels2 = hasSecondBg
+        ? sampleImagePixels(source2, offscreen, offscreenContext, 'contain', 0.8)
+        : null;
 
-      const pixels = offscreenContext.getImageData(
-        0,
-        0,
-        offscreen.width,
-        offscreen.height,
-      ).data;
       const spacing = 3;
+      const maxGridX = Math.max(1, Math.round(offscreen.width / spacing));
       dots = [];
 
       for (let y = 0; y < offscreen.height; y += spacing) {
         for (let x = 0; x < offscreen.width; x += spacing) {
           const index = (y * offscreen.width + x) * 4;
-          const brightness =
-            (pixels[index] + pixels[index + 1] + pixels[index + 2]) / 3;
-          const base = (1 - brightness / 255) * 5.2;
+          const brightness1 =
+            (pixels1[index] + pixels1[index + 1] + pixels1[index + 2]) / 3;
+          const rawBase1 = (1 - brightness1 / 255) * MAX_BASE_DOT_RADIUS;
+          const base1 = rawBase1 >= 0.25 ? rawBase1 : 0;
 
-          // Retain dots with graphic density
-          if (base < 0.25) continue;
+          let base2 = 0;
+          if (pixels2) {
+            const brightness2 =
+              (pixels2[index] + pixels2[index + 1] + pixels2[index + 2]) / 3;
+            const rawBase2 = (1 - brightness2 / 255) * MAX_BASE_DOT_RADIUS;
+            base2 = rawBase2 >= 0.25 ? rawBase2 : 0;
+          }
+
+          // Retain cells that have graphic density in at least one background
+          if (base1 === 0 && base2 === 0) continue;
 
           const gridX = Math.round(x / spacing);
           const gridY = Math.round(y / spacing);
+          // Stagger dot morph across a diagonal sweep + subtle noise so transitions dissolve organically
+          const morphOffset =
+            (gridX / maxGridX) * 0.27 + getDotNoise(x, y, 5) * 0.18;
 
           dots.push({
             originX: (x / offscreen.width) * width,
             originY: (y / offscreen.height) * height,
             gridX,
             gridY,
-            base,
+            base1,
+            base2,
+            morphOffset,
             pulsePhase: getDotNoise(x, y, 1) * Math.PI * 2,
             pulseSpeed: 0.45 + getDotNoise(x, y, 2) * 0.65,
             secondaryPhase: getDotNoise(x, y, 3) * Math.PI * 2,
@@ -385,11 +493,16 @@ export function BackgroundReveal() {
 
     const resizeObserver = new ResizeObserver(setup);
 
-    source.onload = setup;
-    source.onerror = () => {
+    source1.onload = setup;
+    source1.onerror = () => {
       console.error('Unable to load the halftone background source image.');
     };
-    source.src = backgroundImage;
+    source2.onload = setup;
+    source2.onerror = () => {
+      console.error('Unable to load the secondary halftone background image.');
+    };
+    source1.src = backgroundImage1;
+    source2.src = backgroundImage2;
     resizeObserver.observe(canvas);
     document.addEventListener('visibilitychange', onVisibilityChange);
     window.addEventListener('pointermove', onPointerMove);
@@ -405,8 +518,10 @@ export function BackgroundReveal() {
       window.removeEventListener('pointerdown', onPointerDown, { capture: true });
       window.removeEventListener('pointerleave', onPointerLeave);
       reducedMotion.removeEventListener('change', setup);
-      source.onload = null;
-      source.onerror = null;
+      source1.onload = null;
+      source1.onerror = null;
+      source2.onload = null;
+      source2.onerror = null;
     };
   }, []);
 

@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useRef,
   useState,
   type Dispatch,
@@ -8,6 +9,8 @@ import {
 import { DESIGN_FOLDERS, PROJECTS, SOUND_FOLDERS } from '../data/content';
 import type { FolderId, FolderMeta, OSMode } from '../types';
 import { ReleaseNotesContent } from './ReleaseNotesContent';
+import { Button } from './Button';
+import { NoteWidget } from './NoteWidget';
 import designAi from '../assets/portfolio-icons/light/ai.svg';
 import designGraphics from '../assets/portfolio-icons/light/graphics.svg';
 import designIndustrial from '../assets/portfolio-icons/light/industrial.svg';
@@ -20,9 +23,8 @@ import musicPortal from '../assets/portfolio-icons/dark/portal.svg';
 import musicPress from '../assets/portfolio-icons/dark/press.svg';
 import musicScore from '../assets/portfolio-icons/dark/score.svg';
 import musicSingle from '../assets/portfolio-icons/dark/single.svg';
-import highlightCovidSound from '../assets/homepage/highlight-covid-sound.png';
+import highlightCovidSound from '../assets/homepage/project-highlight-covid.png';
 import highlightNoiseInflation from '../assets/homepage/highlight-noise-inflation.png';
-import arrowEnd from '../assets/homepage/arrow-end.svg';
 
 interface HomeScreenProps {
   mode: OSMode;
@@ -70,7 +72,8 @@ const PROJECT_HIGHLIGHTS = [
     projectId: 'covid-sound',
     category: 'Project Feature',
     title: '“Covid Sound” feature in Digital Summer Show of MoCDA',
-    details: 'Data Visualization, Multimedia, Coding',
+    details:
+      'My project “Covid Sound” was selected for the Museum of Contemporary Digital Arts.',
     image: highlightCovidSound,
   },
   {
@@ -88,6 +91,13 @@ const PROJECT_HIGHLIGHTS = [
     image: getProjectImage('airport-cyberculture'),
   },
 ];
+
+const DESIGN_TITLE_PREFIX = 'Design';
+const DESIGN_TITLE_SUFFIXES = [
+  'ing New Ways of Being',
+  'ing the Space\ninbetween',
+  ' to Choreographing Interactions',
+] as const;
 
 const SOUND_HIGHLIGHTS = [
   {
@@ -253,9 +263,18 @@ export function HomeScreen({
   const [activeCallout, setActiveCallout] = useState<ActiveCallout | null>(
     null,
   );
-  const [isHighlightsPinned, setIsHighlightsPinned] = useState(false);
-  const [isHighlightsHovered, setIsHighlightsHovered] = useState(false);
-  const isHighlightsOpen = isHighlightsPinned || isHighlightsHovered;
+  const [activeHighlightIndex, setActiveHighlightIndex] = useState(0);
+  const [isHighlightsPaused, setIsHighlightsPaused] = useState(false);
+  const [titleSuffixIndex, setTitleSuffixIndex] = useState(0);
+  const [typedCharCount, setTypedCharCount] = useState(0);
+  const [titlePhase, setTitlePhase] = useState<
+    'typing' | 'pause-full' | 'deleting' | 'pause-empty'
+  >('typing');
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false,
+  );
   const folderSource = mode === 'design' ? DESIGN_FOLDERS : SOUND_FOLDERS;
   const folders = folderSource.filter(
     (folder): folder is FolderMeta =>
@@ -295,6 +314,77 @@ export function HomeScreen({
           id: item.projectId,
           onOpen: () => onOpenProject(item.projectId),
         }));
+  const highlightCount = highlights.length;
+
+  useEffect(() => {
+    if (
+      isHighlightsPaused ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      setActiveHighlightIndex((index) => (index + 1) % highlightCount);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, [highlightCount, isHighlightsPaused]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handleMotionChange = () => setPrefersReducedMotion(mediaQuery.matches);
+    handleMotionChange();
+    mediaQuery.addEventListener('change', handleMotionChange);
+    return () => mediaQuery.removeEventListener('change', handleMotionChange);
+  }, []);
+
+  useEffect(() => {
+    if (mode !== 'design' || prefersReducedMotion) {
+      return;
+    }
+
+    const currentSuffix = DESIGN_TITLE_SUFFIXES[titleSuffixIndex];
+
+    if (titlePhase === 'typing') {
+      if (typedCharCount >= currentSuffix.length) {
+        const timer = window.setTimeout(() => setTitlePhase('pause-full'), 0);
+        return () => window.clearTimeout(timer);
+      }
+      const timer = window.setTimeout(() => {
+        setTypedCharCount((count) => count + 1);
+      }, 65);
+      return () => window.clearTimeout(timer);
+    }
+
+    if (titlePhase === 'pause-full') {
+      const timer = window.setTimeout(() => {
+        setTitlePhase('deleting');
+      }, 2200);
+      return () => window.clearTimeout(timer);
+    }
+
+    if (titlePhase === 'deleting') {
+      if (typedCharCount <= 0) {
+        const timer = window.setTimeout(() => setTitlePhase('pause-empty'), 0);
+        return () => window.clearTimeout(timer);
+      }
+      const timer = window.setTimeout(() => {
+        setTypedCharCount((count) => count - 1);
+      }, 34);
+      return () => window.clearTimeout(timer);
+    }
+
+    const timer = window.setTimeout(() => {
+      setTitleSuffixIndex((index) => (index + 1) % DESIGN_TITLE_SUFFIXES.length);
+      setTitlePhase('typing');
+    }, 260);
+    return () => window.clearTimeout(timer);
+  }, [mode, prefersReducedMotion, titlePhase, titleSuffixIndex, typedCharCount]);
+
+  const activeDesignSuffix = prefersReducedMotion
+    ? DESIGN_TITLE_SUFFIXES[0]
+    : DESIGN_TITLE_SUFFIXES[titleSuffixIndex].slice(0, typedCharCount);
 
   return (
     <section className="desktop__home" aria-label="Portfolio home">
@@ -307,11 +397,19 @@ export function HomeScreen({
               <span className="home__title-highlight">sound envisions</span>
             </>
           ) : (
-            <>
-              <span className="home__title-highlight">Designing how</span>
-              <br />
-              <span className="home__title-highlight">things feel.</span>
-            </>
+            <span className="home__title-highlight home__title-highlight--typing">
+              <span className="home__title-typed" aria-hidden="true">
+                {DESIGN_TITLE_PREFIX}
+                {activeDesignSuffix}
+                {!prefersReducedMotion && (
+                  <span className="home__title-cursor" />
+                )}
+              </span>
+              <span className="sr-only">
+                Designing New Ways of Being. Designing the Space inbetween.
+                Design to Choreographing Interactions.
+              </span>
+            </span>
           )}
         </h1>
         <span className="home__hero-rule" aria-hidden="true" />
@@ -489,83 +587,67 @@ export function HomeScreen({
       </nav>
 
       <section
-        className={`home__project-section ${
-          isHighlightsOpen ? 'home__project-section--open' : ''
-        }`}
+        className="home__project-section"
         aria-label={mode === 'sound' ? 'Highlights' : 'Project highlights'}
-        onMouseEnter={() => setIsHighlightsHovered(true)}
-        onMouseLeave={() => setIsHighlightsHovered(false)}
+        aria-roledescription="carousel"
+        onMouseEnter={() => setIsHighlightsPaused(true)}
+        onMouseLeave={() => setIsHighlightsPaused(false)}
+        onFocus={() => setIsHighlightsPaused(true)}
+        onBlur={() => setIsHighlightsPaused(false)}
       >
-        <button
-          type="button"
-          className="home__highlights-heading"
-          onClick={() => setIsHighlightsPinned((prev) => !prev)}
-          aria-expanded={isHighlightsOpen}
-          aria-controls="home-highlights-grid"
-          aria-label={`Toggle ${mode === 'sound' ? 'Highlights' : 'Project Highlights'} accordion`}
-        >
-          <span>{mode === 'sound' ? 'Highlights' : 'Project Highlights'}</span>
-          <span className="home__highlights-heading-meta" aria-hidden="true">
-            <span className="home__highlights-count">3</span>
-            <svg
-              className="home__highlights-chevron"
-              viewBox="0 0 10 10"
-              aria-hidden="true"
+        <div className="home__highlights-window">
+          <header className="home__highlights-window-header">
+            <h2>{mode === 'sound' ? 'Highlights' : 'Project Highlights'}</h2>
+            <div
+              className="home__highlights-dots"
+              role="tablist"
+              aria-label="Select highlight"
             >
-              <path
-                d="M2 6.5L5 3.5L8 6.5"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-            </svg>
-          </span>
-        </button>
-        <div
-          id="home-highlights-grid"
-          className={`home__highlights-accordion ${
-            isHighlightsOpen ? 'home__highlights-accordion--open' : ''
-          }`}
-          aria-hidden={!isHighlightsOpen}
-        >
-          <div className="home__highlights-accordion-inner">
-            <div className="home__highlights">
-              {highlights.map((project) => (
+              {highlights.map((project, index) => {
+                const isActive = index === activeHighlightIndex;
+                return (
+                  <button
+                    key={project.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-label={`Show ${project.title} (${index + 1} of ${highlightCount})`}
+                    className={`home__highlights-dot${isActive ? ' home__highlights-dot--active' : ''}`}
+                    onClick={() => setActiveHighlightIndex(index)}
+                  />
+                );
+              })}
+            </div>
+          </header>
+          <div className="home__highlights-viewport">
+            <div
+              className="home__highlights-track"
+              style={{ transform: `translateX(-${activeHighlightIndex * 100}%)` }}
+              aria-live="off"
+            >
+              {highlights.map((project, index) => (
                 <article
                   className="home__highlight"
                   key={project.id}
-                  onClick={project.onOpen}
-                  tabIndex={0}
-                  role="button"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      project.onOpen();
-                    }
-                  }}
+                  aria-hidden={index !== activeHighlightIndex}
                 >
                   <div className="home__highlight-image">
                     <img src={project.image} alt="" />
                   </div>
                   <div className="home__highlight-copy">
                     <div>
-                      <p className="home__highlight-category">{project.category}</p>
                       <h3>{project.title}</h3>
                       <p className="home__highlight-details">{project.details}</p>
                     </div>
-                    <button
-                      type="button"
+                    <Button
+                      showArrow
                       className="home__highlight-open"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        project.onOpen();
-                      }}
+                      onClick={project.onOpen}
+                      tabIndex={index === activeHighlightIndex ? 0 : -1}
                       aria-label={`Open ${project.title}`}
                     >
-                      <img src={arrowEnd} alt="" />
-                    </button>
+                      OPEN
+                    </Button>
                   </div>
                 </article>
               ))}
@@ -573,6 +655,8 @@ export function HomeScreen({
           </div>
         </div>
       </section>
+
+      <NoteWidget />
     </section>
   );
 }

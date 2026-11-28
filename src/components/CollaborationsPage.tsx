@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Button } from './Button';
 
 interface Collaboration {
   id: string;
@@ -41,7 +42,8 @@ export function CollaborationsPage({ onOpenProject }: CollaborationsPageProps) {
           <div className="network-popup__content" onClick={e => e.stopPropagation()}>
             <h3>{selected.partner}</h3>
             <p>ROLE: {selected.role}</p>
-            <button 
+            <Button
+              showArrow
               className="network-cta" 
               onClick={() => {
                 onOpenProject(selected.projectId);
@@ -49,7 +51,7 @@ export function CollaborationsPage({ onOpenProject }: CollaborationsPageProps) {
               }}
             >
               [ OPEN PROJECT ]
-            </button>
+            </Button>
           </div>
         </div>
       )}

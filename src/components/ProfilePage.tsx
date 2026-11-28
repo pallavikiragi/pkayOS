@@ -1,46 +1,21 @@
-import { useState } from 'react';
 import { AboutContent } from './AboutContent';
 
 interface ProfilePageProps {
   onClose: () => void;
-  onMinimize: () => void;
 }
 
-export function ProfilePage({ onClose, onMinimize }: ProfilePageProps) {
-  const [isMaximized, setIsMaximized] = useState(true);
-
+export function ProfilePage({ onClose }: ProfilePageProps) {
   return (
-    <section
-      className={`desktop__profile${isMaximized ? '' : ' desktop__profile--windowed'}`}
-      aria-label="Profile"
-    >
+    <section className="desktop__profile" aria-label="Profile">
       <div className="profile-page">
-        <header className="os-window__titlebar profile-page__titlebar">
+        <header className="profile-page__titlebar">
           <button
             type="button"
-            className="os-window__close"
+            className="profile-page__close"
             onClick={onClose}
             aria-label="Close window"
-          >×</button>
-          <div className="os-window__titlebar-drag profile-page__titlebar-drag">
-            <span className="os-window__title">ABOUT.TXT</span>
-          </div>
-          <div className="os-window__controls">
-            <button
-              type="button"
-              className="os-window__control os-window__minimize"
-              onClick={onMinimize}
-              aria-label="Minimize window"
-              title="Minimize"
-            />
-            <button
-              type="button"
-              className={`os-window__control os-window__maximize${isMaximized ? ' os-window__maximize--active' : ''}`}
-              onClick={() => setIsMaximized((maximized) => !maximized)}
-              aria-label={isMaximized ? 'Restore window' : 'Maximize window'}
-              title={isMaximized ? 'Restore' : 'Maximize'}
-            />
-          </div>
+          />
+          <span className="profile-page__title">ABOUT.TXT</span>
         </header>
         <div className="profile-page__body">
           <AboutContent />

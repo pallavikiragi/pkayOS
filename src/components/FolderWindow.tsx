@@ -6,6 +6,7 @@ import {
 } from '../data/content';
 import type { FolderId } from '../types';
 import { ProjectTile } from './ProjectTile';
+import { Button } from './Button';
 
 interface FolderWindowProps {
   folderId: FolderId;
@@ -38,14 +39,15 @@ export function FolderWindow({ folderId, onOpenProject }: FolderWindowProps) {
 
       <div className="filter-chips" role="toolbar" aria-label="Filter projects">
         {tags.map((tag) => (
-          <button
+          <Button
+            compact
             key={tag}
-            type="button"
-            className={`filter-chip ${activeTag === tag ? 'filter-chip--active' : ''}`}
+            variant={activeTag === tag ? 'blue' : 'default'}
+            className="filter-chip"
             onClick={() => setActiveTag(tag)}
           >
             {tag}
-          </button>
+          </Button>
         ))}
       </div>
 
